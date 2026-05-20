@@ -61,3 +61,4 @@ db.authenticate()
         console.error('Make sure XAMPP MySQL is running and your .env DB settings are correct');
         process.exit(1);
     });
+    module.exports = app;
