@@ -1,0 +1,54 @@
+const nodemailer = require('nodemailer');
+
+async function sendEmail({ to, subject, html }) {
+    let transporter;
+
+    try {
+        // If SMTP credentials are provided, use them
+        if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
+            transporter = nodemailer.createTransport({
+                host: process.env.SMTP_HOST,
+                port: process.env.SMTP_PORT || 587,
+                auth: {
+                    user: process.env.SMTP_USER,
+                    pass: process.env.SMTP_PASS
+                }
+            });
+        } else {
+            // Auto-generate Ethereal test account for development
+            console.log('📧 Creating Ethereal test account...');
+            const testAccount = await nodemailer.createTestAccount();
+            console.log('📧 Ethereal account created:', testAccount.user);
+            transporter = nodemailer.createTransport({
+                host: 'smtp.ethereal.email',
+                port: 587,
+                auth: {
+                    user: testAccount.user,
+                    pass: testAccount.pass
+                }
+            });
+        }
+
+        const info = await transporter.sendMail({
+            from: process.env.EMAIL_FROM || '"IPT 2026" <noreply@ipt2026.com>',
+            to,
+            subject,
+            html
+        });
+
+        // Log preview URL for Ethereal (dev only)
+        const previewUrl = nodemailer.getTestMessageUrl(info);
+        console.log(`\n========================================`);
+        console.log(`📧 Email sent to: ${to}`);
+        console.log(`📧 Subject: ${subject}`);
+        if (previewUrl) {
+            console.log(`📧 Preview URL: ${previewUrl}`);
+        }
+        console.log(`========================================\n`);
+    } catch (err) {
+        console.error('❌ Email sending failed:', err.message);
+        // Don't throw — email failure shouldn't break registration
+    }
+}
+
+module.exports = sendEmail;

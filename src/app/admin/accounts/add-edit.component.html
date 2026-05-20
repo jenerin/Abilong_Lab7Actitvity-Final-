@@ -1,0 +1,263 @@
+<div class="account-form-wrapper">
+  <div class="account-form-card">
+
+    <!-- Header -->
+    <div class="af-header">
+      <div class="af-header-icon">
+        <!-- person-plus icon -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+          <path d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H1s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C9.516 10.68 8.289 10 6 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>
+          <path fill-rule="evenodd" d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5z"/>
+        </svg>
+      </div>
+      <div class="af-header-text">
+        <h2 class="af-title">{{ isAddMode ? 'Add Account' : 'Edit Account' }}</h2>
+        <p class="af-subtitle">
+          {{ isAddMode ? 'Fill in the details to create a new account.' : 'Update the details for this account.' }}
+        </p>
+      </div>
+    </div>
+
+    <hr class="af-divider" />
+
+    <!-- Form -->
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="account-form">
+
+      <!-- Row 1: Title + Role -->
+      <div class="row">
+        <!-- Title -->
+        <div class="col-md-6 mb-3">
+          <label for="title" class="form-label af-label">Title</label>
+          <div class="af-input-group" [class.is-invalid-group]="submitted && f['title'].errors">
+            <span class="af-input-icon" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>
+              </svg>
+            </span>
+            <select
+              id="title"
+              formControlName="title"
+              class="af-select"
+              [ngClass]="{ 'af-invalid': submitted && f['title'].errors }"
+            >
+              <option value="" disabled selected>Select title</option>
+              <option value="Mr">Mr</option>
+              <option value="Mrs">Mrs</option>
+              <option value="Ms">Ms</option>
+              <option value="Dr">Dr</option>
+            </select>
+          </div>
+          <div *ngIf="submitted && f['title'].errors" class="af-error">
+            <span *ngIf="f['title'].errors['required']">Title is required</span>
+          </div>
+        </div>
+
+        <!-- Role -->
+        <div class="col-md-6 mb-3">
+          <label for="role" class="form-label af-label">Role</label>
+          <div class="af-input-group" [class.is-invalid-group]="submitted && f['role'].errors">
+            <span class="af-input-icon" aria-hidden="true">
+              <!-- briefcase icon -->
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M6.5 1A1.5 1.5 0 0 0 5 2.5V3H1.5A1.5 1.5 0 0 0 0 4.5v8A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-8A1.5 1.5 0 0 0 14.5 3H11v-.5A1.5 1.5 0 0 0 9.5 1h-3zm0 1h3a.5.5 0 0 1 .5.5V3H6v-.5a.5.5 0 0 1 .5-.5zm1.886 6.914L15 7.151V12.5a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5V7.15l6.614 1.764a1.5 1.5 0 0 0 .772 0zM1.5 4h13a.5.5 0 0 1 .5.5v1.616L8.129 7.948a.5.5 0 0 1-.258 0L1 6.116V4.5a.5.5 0 0 1 .5-.5z"/>
+              </svg>
+            </span>
+            <select
+              id="role"
+              formControlName="role"
+              class="af-select"
+              [ngClass]="{ 'af-invalid': submitted && f['role'].errors }"
+            >
+              <option value="" disabled selected>Select role</option>
+              <option *ngFor="let role of roles" [value]="role">{{ role }}</option>
+            </select>
+          </div>
+          <div *ngIf="submitted && f['role'].errors" class="af-error">
+            <span *ngIf="f['role'].errors['required']">Role is required</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 2: First Name + Last Name -->
+      <div class="row">
+        <!-- First Name -->
+        <div class="col-md-6 mb-3">
+          <label for="firstName" class="form-label af-label">First Name</label>
+          <div class="af-input-group" [class.is-invalid-group]="submitted && f['firstName'].errors">
+            <span class="af-input-icon" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>
+              </svg>
+            </span>
+            <input
+              id="firstName"
+              type="text"
+              formControlName="firstName"
+              class="af-input"
+              placeholder="Enter first name"
+              [ngClass]="{ 'af-invalid': submitted && f['firstName'].errors }"
+            />
+          </div>
+          <div *ngIf="submitted && f['firstName'].errors" class="af-error">
+            <span *ngIf="f['firstName'].errors['required']">First Name is required</span>
+          </div>
+        </div>
+
+        <!-- Last Name -->
+        <div class="col-md-6 mb-3">
+          <label for="lastName" class="form-label af-label">Last Name</label>
+          <div class="af-input-group" [class.is-invalid-group]="submitted && f['lastName'].errors">
+            <span class="af-input-icon" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>
+              </svg>
+            </span>
+            <input
+              id="lastName"
+              type="text"
+              formControlName="lastName"
+              class="af-input"
+              placeholder="Enter last name"
+              [ngClass]="{ 'af-invalid': submitted && f['lastName'].errors }"
+            />
+          </div>
+          <div *ngIf="submitted && f['lastName'].errors" class="af-error">
+            <span *ngIf="f['lastName'].errors['required']">Last Name is required</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Email Address (full width) -->
+      <div class="mb-3">
+        <label for="email" class="form-label af-label">Email Address</label>
+        <div class="af-input-group" [class.is-invalid-group]="submitted && f['email'].errors">
+          <span class="af-input-icon" aria-hidden="true">
+            <!-- envelope icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2zm13 2.383-4.708 2.825L15 11.105V5.383zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741zM1 11.105l4.708-2.897L1 5.383v5.722z"/>
+            </svg>
+          </span>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            class="af-input"
+            placeholder="example@gmail.com"
+            [ngClass]="{ 'af-invalid': submitted && f['email'].errors }"
+          />
+        </div>
+        <div *ngIf="submitted && f['email'].errors" class="af-error">
+          <span *ngIf="f['email'].errors['required']">Email is required</span>
+          <span *ngIf="f['email'].errors['email']">Email must be a valid email address</span>
+        </div>
+      </div>
+
+      <!-- Row 3: Password + Confirm Password -->
+      <div class="row">
+        <!-- Password -->
+        <div class="col-md-6 mb-3">
+          <label for="password" class="form-label af-label">
+            {{ isAddMode ? 'Password' : 'Password (Leave blank to keep current)' }}
+          </label>
+          <div class="af-input-group" [class.is-invalid-group]="submitted && f['password'].errors">
+            <span class="af-input-icon" aria-hidden="true">
+              <!-- lock icon -->
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
+              </svg>
+            </span>
+            <input
+              id="password"
+              [type]="showPassword ? 'text' : 'password'"
+              formControlName="password"
+              class="af-input af-input-pw"
+              placeholder="Enter password"
+              [ngClass]="{ 'af-invalid': submitted && f['password'].errors }"
+            />
+            <button
+              type="button"
+              class="af-pw-toggle"
+              (click)="showPassword = !showPassword"
+              [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+            >
+              <!-- eye icon -->
+              <svg *ngIf="!showPassword" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/>
+                <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/>
+              </svg>
+              <!-- eye-slash icon -->
+              <svg *ngIf="showPassword" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7.028 7.028 0 0 0-2.79.588l.77.771A5.944 5.944 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.134 13.134 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755-.165.165-.337.328-.517.486l.708.709z"/>
+                <path d="M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829l.822.822zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829z"/>
+                <path d="M3.35 5.47c-.18.16-.353.322-.518.487A13.134 13.134 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7.029 7.029 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.708.709zm10.296 8.884-12-12 .708-.708 12 12-.708.708z"/>
+              </svg>
+            </button>
+          </div>
+          <div *ngIf="submitted && f['password'].errors" class="af-error">
+            <span *ngIf="f['password'].errors['required']">Password is required</span>
+            <span *ngIf="f['password'].errors['minlength']">Password must be at least 6 characters</span>
+          </div>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="col-md-6 mb-3">
+          <label for="confirmPassword" class="form-label af-label">Confirm Password</label>
+          <div class="af-input-group" [class.is-invalid-group]="submitted && f['confirmPassword']?.errors">
+            <span class="af-input-icon" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
+              </svg>
+            </span>
+            <input
+              id="confirmPassword"
+              [type]="showConfirmPassword ? 'text' : 'password'"
+              formControlName="confirmPassword"
+              class="af-input af-input-pw"
+              placeholder="Re-enter password"
+              [ngClass]="{ 'af-invalid': submitted && f['confirmPassword']?.errors }"
+            />
+            <button
+              type="button"
+              class="af-pw-toggle"
+              (click)="showConfirmPassword = !showConfirmPassword"
+              [attr.aria-label]="showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'"
+            >
+              <svg *ngIf="!showConfirmPassword" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/>
+                <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/>
+              </svg>
+              <svg *ngIf="showConfirmPassword" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7.028 7.028 0 0 0-2.79.588l.77.771A5.944 5.944 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.134 13.134 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755-.165.165-.337.328-.517.486l.708.709z"/>
+                <path d="M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829l.822.822zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829z"/>
+                <path d="M3.35 5.47c-.18.16-.353.322-.518.487A13.134 13.134 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7.029 7.029 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.708.709zm10.296 8.884-12-12 .708-.708 12 12-.708.708z"/>
+              </svg>
+            </button>
+          </div>
+          <div *ngIf="submitted && f['confirmPassword']?.errors" class="af-error">
+            <span *ngIf="f['confirmPassword']?.errors?.['required']">Confirm Password is required</span>
+            <span *ngIf="f['confirmPassword']?.errors?.['mustMatch']">Passwords do not match</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Buttons -->
+      <div class="af-actions">
+        <button type="submit" [disabled]="loading" class="af-btn-submit">
+          <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+          <svg *ngIf="!loading && isAddMode" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" class="me-2" aria-hidden="true">
+            <path d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H1s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C9.516 10.68 8.289 10 6 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>
+            <path fill-rule="evenodd" d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5z"/>
+          </svg>
+          <svg *ngIf="!loading && !isAddMode" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" class="me-2" aria-hidden="true">
+            <path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zm1.679-4.493-1.335 2.226a.75.75 0 0 1-1.174.144l-.774-.773a.5.5 0 0 1 .708-.708l.547.548 1.17-1.951a.5.5 0 1 1 .858.514z"/>
+            <path d="M11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM8 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm.256 7a4.474 4.474 0 0 1-.229-1.004H3c.001-.246.154-.986.832-1.664C4.484 10.68 5.711 10 8 10c.26 0 .507.009.74.025.226-.341.496-.65.804-.918C9.077 9.038 8.564 9 8 9c-5 0-6 3-6 4s1 1 1 1h5.256z"/>
+          </svg>
+          {{ isAddMode ? 'Add Account' : 'Update Account' }}
+        </button>
+
+        <a routerLink=".." class="af-btn-cancel">Cancel</a>
+      </div>
+
+    </form>
+  </div>
+</div>

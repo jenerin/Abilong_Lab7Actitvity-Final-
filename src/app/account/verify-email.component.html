@@ -1,0 +1,12 @@
+<div *ngIf="loading" class="text-center p-4">
+  <div class="spinner-border" role="status">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+  <p class="mt-2">Verifying email...</p>
+</div>
+
+<div *ngIf="!loading && error" class="alert alert-danger">
+  <h5>Email verification failed</h5>
+  <p>{{ error }}</p>
+  <p>If your email is not verified you can try <a routerLink="../forgot-password">requesting a password reset</a> which will also verify your email.</p>
+</div>
