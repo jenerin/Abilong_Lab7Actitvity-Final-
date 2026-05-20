@@ -1,5 +1,5 @@
 export const environment = {
-    production: true,
-    apiUrl: 'https://ipt-2026-backend.onrender.com',
-    useFakeBackend: false
+  production: true,
+  apiUrl: 'https://abilong-lab7actitvity-final.onrender.com', // Update this line!
+  useFakeBackend: false
 };
