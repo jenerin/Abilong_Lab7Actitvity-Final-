@@ -1,15 +1,9 @@
 const { Sequelize } = require('sequelize');
 
-const sequelize = new Sequelize(
-    process.env.DB_NAME || 'ipt2026_db',
-    process.env.DB_USER || 'root',
-    process.env.DB_PASSWORD || '',
-    {
-        host: process.env.DB_HOST || 'localhost',
-        port: process.env.DB_PORT || 3306,
-        dialect: 'mysql',
-        logging: false
-    }
-);
+// 🚀 PRESENTATION SAFE-MODE: Runs flawlessly inside the server's local RAM.
+// No cloud databases, no firewall blocks, zero connection delays.
+const db = new Sequelize('sqlite::memory:', {
+    logging: false
+});
 
-module.exports = sequelize;
+module.exports = db;
