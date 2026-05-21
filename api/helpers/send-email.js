@@ -5,11 +5,12 @@ async function sendEmail({ to, subject, html }) {
 
     try {
         // 1. Setup the Transport Layer safely
+        // 1. Setup the Transport Layer safely
         if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
             transporter = nodemailer.createTransport({
-                host: process.env.SMTP_HOST,
-                port: parseInt(process.env.SMTP_PORT) || 465, // 👈 Updates port handling
-                secure: process.env.SMTP_PORT == 465, // 👈 ADD THIS LINE: true for 465, false for 587
+                host: 'smtp-relay.brevo.com', // Forced Brevo Host
+                port: 465,                    // Forced Secure Port
+                secure: true,                 // Forced SSL Security Mode
                 auth: {
                     user: process.env.SMTP_USER,
                     pass: process.env.SMTP_PASS
