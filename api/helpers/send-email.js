@@ -1,71 +1,39 @@
 const nodemailer = require('nodemailer');
 
 async function sendEmail({ to, subject, html }) {
-    let transporter;
-
     try {
-        // 1. Setup the Transport Layer safely
-        // 1. Setup the Transport Layer safely
-        if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
-            transporter = nodemailer.createTransport({
-                host: 'smtp-relay.brevo.com', // Forced Brevo Host
-                port: 465,                    // Forced Secure Port
-                secure: true,                 // Forced SSL Security Mode
-                auth: {
-                    user: process.env.SMTP_USER,
-                    pass: process.env.SMTP_PASS
-                }
-            });
-        } else {
-            // Auto-generate Ethereal test account for development safely
-            try {
-                console.log('📧 Creating Ethereal test account...');
-                const testAccount = await nodemailer.createTestAccount();
-                console.log('📧 Ethereal account created:', testAccount.user);
-                
-                transporter = nodemailer.createTransport({
-                    host: 'smtp.ethereal.email',
-                    port: 587,
-                    auth: {
-                        user: testAccount.user,
-                        pass: testAccount.pass
-                    }
-                });
-            } catch (etherealErr) {
-                console.error('⚠️ Could not connect to Ethereal account generator:', etherealErr.message);
-                // Return early so the code doesn't try to send via an undefined transporter
-                return; 
+        console.log('📧 Creating Ethereal presentation test account...');
+        // Automatically creates a test inbox instantly
+        const testAccount = await nodemailer.createTestAccount();
+        
+        const transporter = nodemailer.createTransport({
+            host: 'smtp.ethereal.email',
+            port: 587,
+            secure: false, // true for 465, false for other ports
+            auth: {
+                user: testAccount.user,
+                pass: testAccount.pass
             }
-        }
+        });
 
-        // 2. Dispatch the Mail with a localized try/catch block
-        if (transporter) {
-            try {
-                console.log(`📧 Attempting to dispatch email to: ${to}...`);
-                const info = await transporter.sendMail({
-                    // ⚠️ FIXED: Added your verified Brevo registration email here
-                    from: process.env.EMAIL_FROM || '"System Admin" <jennelynabilong22@gmail.com>',
-                    to,
-                    subject,
-                    html
-                });
+        console.log(`📧 Attempting to dispatch email to: ${to}...`);
+        const info = await transporter.sendMail({
+            from: '"System Admin" <noreply@ipt2026.com>',
+            to,
+            subject,
+            html
+        });
 
-                // Log preview URL for Ethereal (dev only)
-                const previewUrl = nodemailer.getTestMessageUrl(info);
-                console.log(`\n========================================`);
-                console.log(`📧 Email sent successfully to: ${to}`);
-                console.log(`📧 Subject: ${subject}`);
-                if (previewUrl) {
-                    console.log(`📧 Preview URL: ${previewUrl}`);
-                }
-                console.log(`========================================\n`);
-            } catch (mailSendErr) {
-                console.error('❌ Email dispatch failed (Network/Timeout/Authentication):', mailSendErr.message);
-            }
-        }
+        // 🎯 CRITICAL FOR YOUR DEMO: This generates a clickable link to view the email!
+        const previewUrl = nodemailer.getTestMessageUrl(info);
+        
+        console.log(`\n========================================`);
+        console.log(`📧 Email sent successfully to: ${to}`);
+        console.log(`📧 PRESENTATION PREVIEW LINK: ${previewUrl}`);
+        console.log(`========================================\n`);
         
     } catch (err) {
-        console.error('❌ Global email helper malfunction:', err.message);
+        console.error('❌ Email helper malfunction:', err.message);
     }
 }
 
