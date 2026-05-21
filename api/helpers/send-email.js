@@ -8,7 +8,8 @@ async function sendEmail({ to, subject, html }) {
         if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
             transporter = nodemailer.createTransport({
                 host: process.env.SMTP_HOST,
-                port: process.env.SMTP_PORT || 587,
+                port: parseInt(process.env.SMTP_PORT) || 465, // 👈 Updates port handling
+                secure: process.env.SMTP_PORT == 465, // 👈 ADD THIS LINE: true for 465, false for 587
                 auth: {
                     user: process.env.SMTP_USER,
                     pass: process.env.SMTP_PASS
