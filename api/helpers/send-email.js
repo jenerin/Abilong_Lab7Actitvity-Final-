@@ -41,7 +41,8 @@ async function sendEmail({ to, subject, html }) {
             try {
                 console.log(`📧 Attempting to dispatch email to: ${to}...`);
                 const info = await transporter.sendMail({
-                    from: process.env.EMAIL_FROM || '"IPT 2026" <noreply@ipt2026.com>',
+                    // ⚠️ FIXED: Added your verified Brevo registration email here
+                    from: process.env.EMAIL_FROM || '"System Admin" <jennelynabilong22@gmail.com>',
                     to,
                     subject,
                     html
@@ -57,7 +58,7 @@ async function sendEmail({ to, subject, html }) {
                 }
                 console.log(`========================================\n`);
             } catch (mailSendErr) {
-                console.error('❌ Email dispatch failed (Network/Timeout):', mailSendErr.message);
+                console.error('❌ Email dispatch failed (Network/Timeout/Authentication):', mailSendErr.message);
             }
         }
         
