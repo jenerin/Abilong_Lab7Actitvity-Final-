@@ -1,22 +1,14 @@
 const { Sequelize } = require('sequelize');
-const mysql2 = require('mysql2'); // Modern driver requirement
 
-const db = new Sequelize(
-    process.env.DB_NAME || 'defaultdb',
-    process.env.DB_USER || 'avnadmin',
-    process.env.DB_PASSWORD,
+const sequelize = new Sequelize(
+    process.env.DB_NAME || 'ipt2026_db',
+    process.env.DB_USER || 'root',
+    process.env.DB_PASSWORD || '',
     {
-        host: process.env.DB_HOST,
-        port: process.env.DB_PORT || 15705,
+        host: process.env.DB_HOST || 'localhost',
+        port: process.env.DB_PORT || 3306,
         dialect: 'mysql',
-        dialectModule: mysql2, 
-        logging: false,
-        dialectOptions: {
-            ssl: {
-                require: true,
-                rejectUnauthorized: false
-            }
-        }
+        logging: false
     }
 );
 
