@@ -1,6 +1,6 @@
 <h2>Register</h2>
 
-<form [formGroup]="form" (ngSubmit)="onSubmit()">
+<form [formGroup]="form" (ngSubmit)="loading = true; onSubmit()">
 
   <select
     formControlName="title"
