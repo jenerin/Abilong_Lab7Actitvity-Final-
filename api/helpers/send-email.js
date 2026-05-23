@@ -1,15 +1,21 @@
-const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp-relay.brevo.com',
-    port: parseInt(process.env.SMTP_PORT || '587'),
-    secure: false, // 👈 MUST be false for port 587! TLS will handle encryption automatically.
-    auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS
-    }
-});
+const nodemailer = require('nodemailer');
 
+async function sendEmail({ to, subject, html }) {
+    // Create the transport layer using port 587 with secure set to false
+    const transporter = nodemailer.createTransport({
+        host: process.env.SMTP_HOST || 'smtp-relay.brevo.com',
+        port: parseInt(process.env.SMTP_PORT || '587'),
+        secure: false, // REQUIRED for port 587. TLS is handled automatically.
+        auth: {
+            user: process.env.SMTP_USER,
+            pass: process.env.SMTP_PASS
+        }
+    });
+
+    // Configure your mail parameters
     const mailOptions = {
-        from: process.env.SMTP_USER, // Uses your authorized Brevo login email as the sender
+        // ⚠️ CRITICAL CHANGE: Change this string to your real Brevo profile registration email!
+        from: 'your-actual-brevo-login-email@gmail.com', 
         to: to,
         subject: subject,
         html: html
@@ -19,8 +25,8 @@ const transporter = nodemailer.createTransport({
         const info = await transporter.sendMail(mailOptions);
         console.log(`📩 Email sent successfully to ${to}. Response: ${info.response}`);
     } catch (error) {
+        // Log the exact error to the Render terminal console without crashing the database registration pipeline
         console.error('❌ Brevo SMTP Email failed to send:', error.message);
-        // Do not throw an error here so your backend registration doesn't crash if email limits are reached
     }
 }
 
