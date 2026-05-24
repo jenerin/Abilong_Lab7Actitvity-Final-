@@ -1,76 +1,76 @@
-import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
-import { first } from 'rxjs/operators';
-
-import { AccountService, AlertService } from '@app/_services';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { AccountService } from '../services/account.service';
 
 @Component({
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './login.component.html'
+  selector: 'app-login',
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.css']
 })
 export class LoginComponent implements OnInit {
-  form!: FormGroup;
+  loginForm: FormGroup;
   loading = false;
-  submitted = false;
-  returnUrl: string = '';
-  showPassword = false; // Add this property for password visibility
+  showPassword = false;
+  loginError = '';
+  returnUrl: string;
 
   constructor(
     private formBuilder: FormBuilder,
     private route: ActivatedRoute,
     private router: Router,
-    private accountService: AccountService,
-    private alertService: AlertService
+    private accountService: AccountService
   ) {
-    // redirect to home if already logged in
-    if (this.accountService.accountValue) {
+    // Redirect to home if already logged in
+    if (this.accountService.userValue) {
       this.router.navigate(['/']);
     }
   }
 
-  ngOnInit() {
-    this.form = this.formBuilder.group({
+  ngOnInit(): void {
+    this.loginForm = this.formBuilder.group({
       username: ['', Validators.required],
-      password: ['', Validators.required]
+      password: ['', Validators.required],
+      rememberMe: [false]
     });
 
-    // get return url from route parameters or default to '/'
+    // Get return URL from route parameters or default to '/'
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
   }
 
-  // convenience getter for easy access to form fields
-  get f() { return this.form.controls; }
+  // Convenience getter for easy access to form fields
+  get f() {
+    return this.loginForm.controls;
+  }
 
-  onSubmit() {
-    this.submitted = true;
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
+  }
 
-    // reset alerts on submit
-    this.alertService.clear();
-
-    // stop here if form is invalid
-    if (this.form.invalid) {
+  onSubmit(): void {
+    // Mark all fields as touched to show validation errors
+    if (this.loginForm.invalid) {
+      Object.keys(this.loginForm.controls).forEach(key => {
+        this.loginForm.get(key)?.markAsTouched();
+      });
       return;
     }
 
     this.loading = true;
-    this.accountService.login(this.f['username'].value, this.f['password'].value)
-      .pipe(first())
-      .subscribe({
-        next: () => {
-          this.router.navigate([this.returnUrl]);
-        },
-        error: error => {
-          this.alertService.error(error);
-          this.loading = false;
-        }
-      });
-  }
+    this.loginError = '';
 
-  // Add this method to toggle password visibility
-  togglePasswordVisibility(): void {
-    this.showPassword = !this.showPassword;
+    const { username, password, rememberMe } = this.loginForm.value;
+
+    this.accountService.login(username, password, rememberMe).subscribe({
+      next: (response) => {
+        this.loading = false;
+        // Navigate to return URL or home
+        this.router.navigate([this.returnUrl]);
+      },
+      error: (error) => {
+        this.loading = false;
+        this.loginError = error?.error?.message || 'Login failed. Please try again.';
+      }
+    });
   }
 }
