@@ -12,7 +12,7 @@ import { AccountService, AlertService } from '@app/_services';
 })
 export class LoginComponent implements OnInit {
   form!: FormGroup;
-  loading = false;
+  loading = false; // Property added to fix the "does not exist" error
   submitted = false;
 
   constructor(
