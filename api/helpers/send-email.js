@@ -1,34 +1,26 @@
 const nodemailer = require('nodemailer');
 
 async function sendEmail({ to, subject, html }) {
-    // This is the standard SMTP configuration you used on Thursday
+    // 1. Create a transporter (Use your real SMTP credentials)
     const transporter = nodemailer.createTransport({
-        host: process.env.SMTP_HOST || 'smtp-relay.brevo.com',
-        port: parseInt(process.env.SMTP_PORT || '587', 10), // Back to standard 587
-        secure: false, // false for port 587
+        host: process.env.SMTP_HOST,
+        port: process.env.SMTP_PORT,
         auth: {
-            user: process.env.SMTP_USER, // Your Brevo SMTP email user
-            pass: process.env.SMTP_PASS  // Your Brevo master key
-        },
-        tls: {
-            rejectUnauthorized: false // Bypasses local/cloud certificate blocks
+            user: process.env.SMTP_USER,
+            pass: process.env.SMTP_PASS
         }
     });
 
-    const mailOptions = {
-        from: process.env.SMTP_USER, // Brevo requires this to match your authorized user
-        to: to,
-        subject: subject,
-        html: html
-    };
+    // 2. Log the email content to your Render Logs so you can find the link!
+    console.log(`\n--- 📧 EMAIL PREVIEW ---`);
+    console.log(`To: ${to}`);
+    console.log(`Subject: ${subject}`);
+    // This logs the HTML body. If your link is inside the HTML, you will see it here!
+    console.log(`Body (HTML): ${html}`); 
+    console.log(`--- 📧 END PREVIEW ---\n`);
 
-    try {
-        console.log(`⏳ [Nodemailer] Attempting to send SMTP mail to ${to}...`);
-        const info = await transporter.sendMail(mailOptions);
-        console.log(`📩 Email sent successfully to ${to}. Response: ${info.response}`);
-    } catch (error) {
-        console.error('❌ Brevo SMTP Email failed to send:', error.message);
-    }
+    // 3. Send the email
+    return await transporter.sendMail({ from: process.env.EMAIL_FROM, to, subject, html });
 }
 
 module.exports = sendEmail;
