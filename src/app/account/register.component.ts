@@ -1,16 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
-import { first } from 'rxjs/operators';
-import { AccountService, AlertService } from '@app/_services';
-import { mustMatch } from '@app/_helpers';
+import { CommonModule } from '@angular/common'; // Required for common template directives
+import { ReactiveFormsModule } from '@angular/forms'; // Required if using forms
 
 @Component({
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: 'register.component.html'
+  standalone: true, // <--- Add this
+  imports: [CommonModule, ReactiveFormsModule], // <--- Add this to fix the "not a known property" errors
+  templateUrl: './your-component.html'
 })
+   
 export class RegisterComponent implements OnInit {
   form!: FormGroup;
   loading = false;
