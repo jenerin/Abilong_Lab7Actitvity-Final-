@@ -2,13 +2,13 @@ import { Injectable, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { first, finalize, tap } from 'rxjs/operators';
+import { first, tap } from 'rxjs/operators';
 
 import { environment } from '@environments/environment';
 import { Account } from '@app/_models';
 
-//  Change it to your actual live backend URL path:
-const baseUrl = `https://abilong-lab7actitvity-final.onrender.com/accounts`;
+// 🚀 Dynamically uses the apiUrl from environment.prod.ts when building for production
+const baseUrl = `${environment.apiUrl}/accounts`;
 
 @Injectable({ providedIn: 'root' })
 export class AccountService {
@@ -107,7 +107,7 @@ export class AccountService {
   }
 
   private startRefreshTokenTimer(): void {
-    const timeout = 14 * 60 * 1000; // 14 minutes
+    const timeout = 14 * 60 * 1000;
     this.ngZone.runOutsideAngular(() => {
       this.stopRefreshTokenTimer();
       this.refreshTokenTimeout = window.setTimeout(
