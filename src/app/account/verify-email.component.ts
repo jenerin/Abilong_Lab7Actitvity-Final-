@@ -5,8 +5,11 @@ import { first } from 'rxjs/operators';
 import { AccountService, AlertService } from '@app/_services';
 
 @Component({
-  templateUrl: 'verify-email.component.html'
+  standalone: true, // This line is missing in the files causing your error!
+  imports: [CommonModule, ReactiveFormsModule],
+  templateUrl: './verify-email.component.html'
 })
+
 export class VerifyEmailComponent implements OnInit {
   loading = true;
   error: string | null = null;
