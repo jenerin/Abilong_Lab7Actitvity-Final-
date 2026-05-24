@@ -1,14 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common'; // Required for ngClass
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms'; // Added ReactiveFormsModule
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms'; // Required for forms
 import { Router } from '@angular/router';
 import { first } from 'rxjs/operators';
-
 import { AccountService, AlertService } from '@app/_services';
 
 @Component({
-  standalone: true, // Added
-  imports: [CommonModule, ReactiveFormsModule], // Added: Required for template directives
+  standalone: true, // MUST be true
+  imports: [CommonModule, ReactiveFormsModule], // REQUIRED for template directives
   templateUrl: 'forgot-password.component.html'
 })
 export class ForgotPasswordComponent implements OnInit {
@@ -33,32 +32,18 @@ export class ForgotPasswordComponent implements OnInit {
     });
   }
 
-  get f() {
-    return this.form.controls;
-  }
+  get f() { return this.form.controls; }
 
   onSubmit(): void {
     this.submitted = true;
-
-    if (this.form.invalid) {
-      return;
-    }
+    if (this.form.invalid) return;
 
     this.loading = true;
-    this.accountService
-      .forgotPassword(this.f['email'].value)
+    this.accountService.forgotPassword(this.f['email'].value)
       .pipe(first())
       .subscribe({
-        next: () => {
-          this.alertService.success('Please check your email for password reset instructions');
-        },
-        error: (error: any) => {
-          this.alertService.error(error);
-          this.loading = false; // Ensure loading is reset on error
-        },
-        complete: () => {
-          this.loading = false;
-        }
+        next: () => this.alertService.success('Please check your email.'),
+        error: (error: any) => { this.alertService.error(error); this.loading = false; }
       });
   }
 }
