@@ -8,9 +8,11 @@ import { ReactiveFormsModule } from '@angular/forms';
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './login.component.html'
 })
-export class LoginComponent {
-  // ... properties ...
-
+export class LoginComponent implements OnInit {
+  form!: FormGroup;
+  loading = false; // 👈 ADD THIS LINE
+  submitted = false;
+}
   onSubmit() {
     this.loading = true;
     this.accountService.login(this.f['email'].value, this.f['password'].value)
