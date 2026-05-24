@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AccountService } from '../services/account.service';
+import { AccountService } from '@app/_services';   // ← Fixed path
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  styleUrls: []
+  styleUrls: []   // Remove .css reference or create the file
 })
 export class LoginComponent implements OnInit {
   loginForm: FormGroup;
@@ -58,7 +58,7 @@ export class LoginComponent implements OnInit {
     const { username, password, rememberMe } = this.loginForm.value;
 
     this.accountService.login(username, password, rememberMe).subscribe({
-      next: (response) => {
+      next: (response: any) => {          // ← Added :any type
         this.loading = false;
         this.router.navigate([this.returnUrl]);
       },
