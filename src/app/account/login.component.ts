@@ -1,14 +1,16 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common'; // Required for common template directives
-import { ReactiveFormsModule } from '@angular/forms'; // Required if using forms
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router, ActivatedRoute } from '@angular/router';
+import { first } from 'rxjs/operators';
+import { AccountService } from '@app/_services';
 
 @Component({
-  standalone: true, // <--- Add this
-  imports: [CommonModule, ReactiveFormsModule], // <--- Add this to fix the "not a known property" errors
-  templateUrl: './your-component.html'
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule],
+  templateUrl: './login.component.html'
 })
-export class YourComponent implements OnInit {
-   // ... your existing logic
+export class LoginComponent implements OnInit {
   form!: FormGroup;
   loading = false;
   submitted = false;
@@ -38,13 +40,8 @@ export class YourComponent implements OnInit {
     this.accountService.login(this.f['email'].value, this.f['password'].value)
       .pipe(first())
       .subscribe({
-        next: () => {
-          const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
-          this.router.navigateByUrl(returnUrl);
-        },
-        error: error => {
-          this.loading = false;
-        }
+        next: () => this.router.navigateByUrl(this.route.snapshot.queryParams['returnUrl'] || '/'),
+        error: (error: any) => { console.error(error); this.loading = false; }
       });
   }
 }
