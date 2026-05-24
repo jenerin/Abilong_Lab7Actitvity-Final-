@@ -3,7 +3,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
-
 import { AccountService, AlertService } from '@app/_services';
 
 @Component({
@@ -11,7 +10,6 @@ import { AccountService, AlertService } from '@app/_services';
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './verify-email.component.html'
 })
-
 export class VerifyEmailComponent implements OnInit {
   loading = true;
   error: string | null = null;
