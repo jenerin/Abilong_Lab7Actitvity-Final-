@@ -1,76 +1,109 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { AccountService } from '../services/account.service';
+<div class="login-container">
+  <div class="login-card">
+    <!-- Header -->
+    <div class="login-header">
+      <h1>Welcome Back</h1>
+      <p>Sign in to your account</p>
+    </div>
 
-@Component({
-  selector: 'app-login',
-  templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']
-})
-export class LoginComponent implements OnInit {
-  loginForm: FormGroup;
-  loading = false;
-  showPassword = false;
-  loginError = '';
-  returnUrl: string;
+    <!-- Login Form -->
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      
+      <!-- Username Field -->
+      <div class="form-group">
+        <label for="username">Username or Email</label>
+        <input 
+          id="username" 
+          type="text" 
+          formControlName="username" 
+          class="form-control" 
+          [class.is-invalid]="f['username'].touched && f['username'].invalid"
+          placeholder="Enter your username or email"
+          autocomplete="username">
+        <div *ngIf="f['username'].touched && f['username'].invalid" class="invalid-feedback">
+          <div *ngIf="f['username'].errors?.['required']">Username is required</div>
+        </div>
+      </div>
 
-  constructor(
-    private formBuilder: FormBuilder,
-    private route: ActivatedRoute,
-    private router: Router,
-    private accountService: AccountService
-  ) {
-    // Redirect to home if already logged in
-    if (this.accountService.userValue) {
-      this.router.navigate(['/']);
-    }
-  }
+      <!-- Password Field with Toggle -->
+      <div class="form-group">
+        <label for="password">Password</label>
+        <div class="input-group">
+          <input 
+            id="password" 
+            [type]="showPassword ? 'text' : 'password'"
+            formControlName="password" 
+            class="form-control" 
+            [class.is-invalid]="f['password'].touched && f['password'].invalid"
+            placeholder="Enter your password"
+            autocomplete="current-password">
+          <button 
+            class="btn btn-outline-secondary" 
+            type="button"
+            (click)="togglePasswordVisibility()"
+            tabindex="-1">
+            <i [class]="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+            {{ showPassword ? 'Hide' : 'Show' }}
+          </button>
+        </div>
+        <div *ngIf="f['password'].touched && f['password'].invalid" class="invalid-feedback">
+          <div *ngIf="f['password'].errors?.['required']">Password is required</div>
+        </div>
+      </div>
 
-  ngOnInit(): void {
-    this.loginForm = this.formBuilder.group({
-      username: ['', Validators.required],
-      password: ['', Validators.required],
-      rememberMe: [false]
-    });
+      <!-- Error Message -->
+      <div *ngIf="loginError" class="alert alert-danger alert-dismissible fade show">
+        {{ loginError }}
+        <button type="button" class="btn-close" (click)="loginError = ''"></button>
+      </div>
 
-    // Get return URL from route parameters or default to '/'
-    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
-  }
+      <!-- Remember Me & Forgot Password -->
+      <div class="form-options">
+        <div class="form-check">
+          <input 
+            id="rememberMe" 
+            type="checkbox" 
+            formControlName="rememberMe" 
+            class="form-check-input">
+          <label class="form-check-label" for="rememberMe">
+            Remember me
+          </label>
+        </div>
+        <a routerLink="/forgot-password" class="forgot-password-link">
+          Forgot password?
+        </a>
+      </div>
 
-  // Convenience getter for easy access to form fields
-  get f() {
-    return this.loginForm.controls;
-  }
+      <!-- Login Button -->
+      <button 
+        type="submit" 
+        class="btn btn-primary btn-login"
+        [disabled]="loading || loginForm.invalid">
+        <span *ngIf="!loading">Sign In</span>
+        <span *ngIf="loading">
+          <span class="spinner-border spinner-border-sm me-2"></span>
+          Signing in...
+        </span>
+      </button>
+    </form>
 
-  togglePasswordVisibility(): void {
-    this.showPassword = !this.showPassword;
-  }
+    <!-- Divider -->
+    <div class="divider">
+      <span>Don't have an account?</span>
+    </div>
 
-  onSubmit(): void {
-    // Mark all fields as touched to show validation errors
-    if (this.loginForm.invalid) {
-      Object.keys(this.loginForm.controls).forEach(key => {
-        this.loginForm.get(key)?.markAsTouched();
-      });
-      return;
-    }
+    <!-- Sign Up Link -->
+    <a routerLink="/signup" class="btn btn-outline-primary btn-signup">
+      Create new account
+    </a>
 
-    this.loading = true;
-    this.loginError = '';
-
-    const { username, password, rememberMe } = this.loginForm.value;
-
-    this.accountService.login(username, password, rememberMe).subscribe({
-      next: (response) => {
-        this.loading = false;
-        // Navigate to return URL or home
-        this.router.navigate([this.returnUrl]);
-      },
-      error: (error) => {
-        this.loading = false;
-        this.loginError = error?.error?.message || 'Login failed. Please try again.';
-      }
-    });
-  }
-}
+    <!-- Footer Links -->
+    <div class="login-footer">
+      <a href="#">Privacy Policy</a>
+      <span>•</span>
+      <a href="#">Terms of Service</a>
+      <span>•</span>
+      <a href="#">Support</a>
+    </div>
+  </div>
+</div>
