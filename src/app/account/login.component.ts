@@ -6,7 +6,7 @@ import { AccountService } from '../services/account.service';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']
+  styleUrls: []
 })
 export class LoginComponent implements OnInit {
   loginForm: FormGroup;
@@ -21,7 +21,6 @@ export class LoginComponent implements OnInit {
     private router: Router,
     private accountService: AccountService
   ) {
-    // Redirect to home if already logged in
     if (this.accountService.userValue) {
       this.router.navigate(['/']);
     }
@@ -34,11 +33,9 @@ export class LoginComponent implements OnInit {
       rememberMe: [false]
     });
 
-    // Get return URL from route parameters or default to '/'
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
   }
 
-  // Convenience getter for easy access to form fields
   get f() {
     return this.loginForm.controls;
   }
@@ -48,7 +45,6 @@ export class LoginComponent implements OnInit {
   }
 
   onSubmit(): void {
-    // Mark all fields as touched to show validation errors
     if (this.loginForm.invalid) {
       Object.keys(this.loginForm.controls).forEach(key => {
         this.loginForm.get(key)?.markAsTouched();
@@ -64,10 +60,9 @@ export class LoginComponent implements OnInit {
     this.accountService.login(username, password, rememberMe).subscribe({
       next: (response) => {
         this.loading = false;
-        // Navigate to return URL or home
         this.router.navigate([this.returnUrl]);
       },
-      error: (error) => {
+      error: (error: any) => {
         this.loading = false;
         this.loginError = error?.error?.message || 'Login failed. Please try again.';
       }
