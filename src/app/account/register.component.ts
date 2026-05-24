@@ -1,14 +1,15 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common'; // 👈 Must be here
-// ... other imports
+import { CommonModule } from '@angular/common'; // 👈 Essential
+import { ReactiveFormsModule } from '@angular/forms'; // 👈 Essential
 
 @Component({
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule], // 👈 Must be here
-  templateUrl: 'register.component.html'
+  standalone: true, // 👈 Required
+  imports: [CommonModule, ReactiveFormsModule], // 👈 Directly import dependencies
+  templateUrl: './register.component.html'
 })
 export class RegisterComponent implements OnInit {
+  // ... your existing code ...
+
   // ... rest of your code ...
   ngOnInit(): void {
     // Ensure this method is present and exactly like this
