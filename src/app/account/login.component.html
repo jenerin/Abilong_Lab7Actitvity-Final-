@@ -1,109 +1,39 @@
-<div class="login-container">
-  <div class="login-card">
-    <!-- Header -->
-    <div class="login-header">
-      <h1>Welcome Back</h1>
-      <p>Sign in to your account</p>
-    </div>
+<h2>Login</h2>
 
-    <!-- Login Form -->
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-      
-      <!-- Username Field -->
-      <div class="form-group">
-        <label for="username">Username or Email</label>
-        <input 
-          id="username" 
-          type="text" 
-          formControlName="username" 
-          class="form-control" 
-          [class.is-invalid]="f['username'].touched && f['username'].invalid"
-          placeholder="Enter your username or email"
-          autocomplete="username">
-        <div *ngIf="f['username'].touched && f['username'].invalid" class="invalid-feedback">
-          <div *ngIf="f['username'].errors?.['required']">Username is required</div>
-        </div>
-      </div>
-
-      <!-- Password Field with Toggle -->
-      <div class="form-group">
-        <label for="password">Password</label>
-        <div class="input-group">
-          <input 
-            id="password" 
-            [type]="showPassword ? 'text' : 'password'"
-            formControlName="password" 
-            class="form-control" 
-            [class.is-invalid]="f['password'].touched && f['password'].invalid"
-            placeholder="Enter your password"
-            autocomplete="current-password">
-          <button 
-            class="btn btn-outline-secondary" 
-            type="button"
-            (click)="togglePasswordVisibility()"
-            tabindex="-1">
-            <i [class]="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
-            {{ showPassword ? 'Hide' : 'Show' }}
-          </button>
-        </div>
-        <div *ngIf="f['password'].touched && f['password'].invalid" class="invalid-feedback">
-          <div *ngIf="f['password'].errors?.['required']">Password is required</div>
-        </div>
-      </div>
-
-      <!-- Error Message -->
-      <div *ngIf="loginError" class="alert alert-danger alert-dismissible fade show">
-        {{ loginError }}
-        <button type="button" class="btn-close" (click)="loginError = ''"></button>
-      </div>
-
-      <!-- Remember Me & Forgot Password -->
-      <div class="form-options">
-        <div class="form-check">
-          <input 
-            id="rememberMe" 
-            type="checkbox" 
-            formControlName="rememberMe" 
-            class="form-check-input">
-          <label class="form-check-label" for="rememberMe">
-            Remember me
-          </label>
-        </div>
-        <a routerLink="/forgot-password" class="forgot-password-link">
-          Forgot password?
-        </a>
-      </div>
-
-      <!-- Login Button -->
-      <button 
-        type="submit" 
-        class="btn btn-primary btn-login"
-        [disabled]="loading || loginForm.invalid">
-        <span *ngIf="!loading">Sign In</span>
-        <span *ngIf="loading">
-          <span class="spinner-border spinner-border-sm me-2"></span>
-          Signing in...
-        </span>
-      </button>
-    </form>
-
-    <!-- Divider -->
-    <div class="divider">
-      <span>Don't have an account?</span>
-    </div>
-
-    <!-- Sign Up Link -->
-    <a routerLink="/signup" class="btn btn-outline-primary btn-signup">
-      Create new account
-    </a>
-
-    <!-- Footer Links -->
-    <div class="login-footer">
-      <a href="#">Privacy Policy</a>
-      <span>•</span>
-      <a href="#">Terms of Service</a>
-      <span>•</span>
-      <a href="#">Support</a>
-    </div>
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <input
+    type="email"
+    formControlName="email"
+    class="form-control"
+    placeholder="Email"
+    [ngClass]="{ 'is-invalid': submitted && f['email'].errors }"
+  />
+  <div *ngIf="submitted && f['email'].errors" class="invalid-feedback d-block">
+    <span *ngIf="f['email'].errors['required']">Email is required</span>
+    <span *ngIf="f['email'].errors['email']">Enter a valid email</span>
   </div>
+
+  <input
+    [type]="showPassword ? 'text' : 'password'"
+    formControlName="password"
+    class="form-control"
+    placeholder="Password"
+    [ngClass]="{ 'is-invalid': submitted && f['password'].errors }"
+  />
+  <div *ngIf="submitted && f['password'].errors" class="invalid-feedback d-block">
+    <span *ngIf="f['password'].errors['required']">Password is required</span>
+  </div>
+
+  <div class="text-end mb-3">
+    <a routerLink="../forgot-password" style="font-size:0.85rem;">Forgot Password?</a>
+  </div>
+
+  <button [disabled]="loading" class="btn btn-primary">
+    <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+    Log In
+  </button>
+</form>
+
+<div class="auth-links">
+  Don't have account? <a routerLink="../register">[Sign Up]</a>
 </div>
