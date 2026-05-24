@@ -9,11 +9,11 @@ import { AccountService } from '@app/_services';
   styleUrls: []
 })
 export class LoginComponent implements OnInit {
-  loginForm: FormGroup;
+  loginForm!: FormGroup;   // ← added !
   loading = false;
   showPassword = false;
   loginError = '';
-  returnUrl: string;
+  returnUrl!: string;      // ← added !
 
   constructor(
     private formBuilder: FormBuilder,
@@ -21,7 +21,7 @@ export class LoginComponent implements OnInit {
     private router: Router,
     private accountService: AccountService
   ) {
-    if (this.accountService.accountValue) {    // ← Changed userValue → accountValue
+    if (this.accountService.accountValue) {
       this.router.navigate(['/']);
     }
   }
@@ -32,7 +32,6 @@ export class LoginComponent implements OnInit {
       password: ['', Validators.required],
       rememberMe: [false]
     });
-
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
   }
 
@@ -51,13 +50,10 @@ export class LoginComponent implements OnInit {
       });
       return;
     }
-
     this.loading = true;
     this.loginError = '';
-
-    const { username, password } = this.loginForm.value;   // ← removed rememberMe
-
-    this.accountService.login(username, password).subscribe({   // ← 2 args only
+    const { username, password } = this.loginForm.value;
+    this.accountService.login(username, password).subscribe({
       next: (response: any) => {
         this.loading = false;
         this.router.navigate([this.returnUrl]);
