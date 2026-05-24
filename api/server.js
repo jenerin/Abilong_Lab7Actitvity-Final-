@@ -14,9 +14,22 @@ const db = require('./config/database');
 
 const app = express();
 
-// CORS — allow Angular frontend
+// 🚀 FIXED: Allow the Render frontend URL and local development
+const allowedOrigins = [
+    'http://localhost:4200', 
+    'https://abilong-lab7actitvity-final.onrender.com' // Add your frontend live URL here
+];
+
 app.use(cors({
-    origin: process.env.CORS_ORIGIN || 'http://localhost:4200',
+    origin: function (origin, callback) {
+        // allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
@@ -35,10 +48,10 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Health check
 app.get('/', (req, res) => {
-    res.json({ message: 'IPT 2026 Backend API is running', docs: '/api-docs' });
+    res.json({ message: 'IPT 2026 Backend API is running' });
 });
 
-// Global error handler (must be last)
+// Global error handler
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 4000;
@@ -47,14 +60,12 @@ const PORT = process.env.PORT || 4000;
 db.authenticate()
     .then(() => {
         console.log('✅ Database connected');
-        // Remove { alter: true } so it doesn't break on Render
         return db.sync(); 
     })
     .then(() => {
         console.log('✅ Database synced');
-        app.listen(PORT, () => {
-            console.log(`🚀 Server running on http://localhost:${PORT}`);
-            console.log(`📚 API Docs: http://localhost:${PORT}/api-docs`);
+        app.listen(PORT, '0.0.0.0', () => { // Added '0.0.0.0' for Render network binding
+            console.log(`🚀 Server running on port ${PORT}`);
         });
     })
     .catch(err => {
