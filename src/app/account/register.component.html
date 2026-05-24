@@ -50,13 +50,11 @@
     <span *ngIf="f['email'].errors?.['email']">Enter a valid email</span>
   </div>
 
-  <input
-    type="password"
-    formControlName="password"
-    class="form-control"
-    placeholder="Password"
-    [ngClass]="{ 'is-invalid': submitted && f['password'].errors }"
-  />
+ <input 
+  type="password" 
+  formControlName="confirmPassword" 
+  class="form-control" 
+  [class.is-invalid]="submitted && (f['confirmPassword'].errors || form.errors?.['mustMatch'])">
   <div *ngIf="submitted && f['password'].errors" class="invalid-feedback d-block">
     <span *ngIf="f['password'].errors?.['required']">Password is required</span>
     <span *ngIf="f['password'].errors?.['minlength']">Min 6 characters</span>
