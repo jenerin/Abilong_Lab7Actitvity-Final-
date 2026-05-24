@@ -1,9 +1,11 @@
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
-
+import { Router, RouterOutlet } from '@angular/router'; // Added RouterOutlet
 import { AccountService } from '@app/_services';
 
 @Component({
+  selector: 'app-layout', // Best practice
+  standalone: true,      // 👈 REQUIRED for standalone
+  imports: [RouterOutlet], // 👈 REQUIRED for router-outlet in layout.component.html
   templateUrl: 'layout.component.html'
 })
 export class LayoutComponent {
