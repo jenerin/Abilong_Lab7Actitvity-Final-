@@ -1,14 +1,12 @@
 async function sendEmail({ to, subject, html }) {
     const url = 'https://api.brevo.com/v3/smtp/email';
     
-    // Create a timeout controller so the server never hangs indefinitely
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 seconds limit
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10-second safety cutoff
 
     const payload = {
         sender: { 
-            // Fixed to point directly to your verified Brevo sender account
-            email: 'jennelynabilong22@gmail.com' 
+            email: 'jennelynabilong22@gmail.com' // Your verified Brevo sender email
         },
         to: [{ email: to }],
         subject: subject,
@@ -22,15 +20,15 @@ async function sendEmail({ to, subject, html }) {
             method: 'POST',
             headers: {
                 'accept': 'application/json',
-                // Uses your Render environment key, or falls back to your master Brevo string
-                'api-key': process.env.SMTP_PASS || 'ac07ff001@smtp-brevo.com',
+                // This grabs the secret key safely from your Render settings
+                'api-key': process.env.SMTP_PASS, 
                 'content-type': 'application/json'
             },
             body: JSON.stringify(payload),
-            signal: controller.signal // Attaches the timeout clock
+            signal: controller.signal 
         });
 
-        clearTimeout(timeoutId); // Clear timeout if it succeeds on time
+        clearTimeout(timeoutId); 
 
         const data = await response.json();
 
@@ -42,7 +40,7 @@ async function sendEmail({ to, subject, html }) {
     } catch (error) {
         clearTimeout(timeoutId);
         if (error.name === 'AbortError') {
-            console.error('❌ Brevo API request timed out after 10 seconds! Network is blocked.');
+            console.error('❌ Brevo API request timed out after 10 seconds!');
         } else {
             console.error('❌ Failed to connect to Brevo API endpoint:', error.message);
         }
