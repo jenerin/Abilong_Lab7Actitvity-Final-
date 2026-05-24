@@ -14,15 +14,15 @@ const db = require('./config/database');
 
 const app = express();
 
-// 🚀 FIXED: Allow the Render frontend URL and local development
+// 🚀 FIXED CORS: Explicitly allowing your live Render URL
 const allowedOrigins = [
-    'http://localhost:4200', 
-    'https://abilong-lab7actitvity-final.onrender.com' // Add your frontend live URL here
+    'http://localhost:4200',
+    'https://abilong-lab7actitvity-final.onrender.com'
 ];
 
 app.use(cors({
     origin: function (origin, callback) {
-        // allow requests with no origin (like mobile apps or curl requests)
+        // Allow requests with no origin (like mobile apps or curl)
         if (!origin) return callback(null, true);
         if (allowedOrigins.indexOf(origin) !== -1) {
             callback(null, true);
@@ -32,7 +32,7 @@ app.use(cors({
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'X-Requested-With', 'Accept']
 }));
 
 app.use(express.json());
@@ -43,8 +43,12 @@ app.use(cookieParser());
 app.use('/accounts', accountsRouter);
 
 // Swagger docs
-const swaggerDocument = YAML.load(path.join(__dirname, 'swagger.yaml'));
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+try {
+    const swaggerDocument = YAML.load(path.join(__dirname, 'swagger.yaml'));
+    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+} catch (err) {
+    console.warn('⚠️ Swagger file not found, skipping documentation.');
+}
 
 // Health check
 app.get('/', (req, res) => {
@@ -64,7 +68,7 @@ db.authenticate()
     })
     .then(() => {
         console.log('✅ Database synced');
-        app.listen(PORT, '0.0.0.0', () => { // Added '0.0.0.0' for Render network binding
+        app.listen(PORT, '0.0.0.0', () => {
             console.log(`🚀 Server running on port ${PORT}`);
         });
     })
