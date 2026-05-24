@@ -1,67 +1,58 @@
 import { Component, OnInit } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { AccountService } from '@app/_services';
+import { first } from 'rxjs/operators';
+import { AccountService } from '../_services/account.service'; // Adjust this path if your folder structure is different
 
 @Component({
-  selector: 'app-login',
-  templateUrl: './login.component.html',
-  styleUrls: []
+    selector: 'app-login',
+    templateUrl: './login.component.html'
 })
 export class LoginComponent implements OnInit {
-  loginForm!: FormGroup;   // ← added !
-  loading = false;
-  showPassword = false;
-  loginError = '';
-  returnUrl!: string;      // ← added !
+    form!: FormGroup;
+    loading = false;
+    submitted = false;
+    showPassword = false;
 
-  constructor(
-    private formBuilder: FormBuilder,
-    private route: ActivatedRoute,
-    private router: Router,
-    private accountService: AccountService
-  ) {
-    if (this.accountService.accountValue) {
-      this.router.navigate(['/']);
+    constructor(
+        private formBuilder: FormBuilder,
+        private route: ActivatedRoute,
+        private router: Router,
+        private accountService: AccountService
+    ) { }
+
+    ngOnInit() {
+        this.form = this.formBuilder.group({
+            email: ['', [Validators.required, Validators.email]],
+            password: ['', Validators.required]
+        });
     }
-  }
 
-  ngOnInit(): void {
-    this.loginForm = this.formBuilder.group({
-      username: ['', Validators.required],
-      password: ['', Validators.required],
-      rememberMe: [false]
-    });
-    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
-  }
+    // Convenience getter for easy access to form fields in the HTML template
+    get f() { return this.form.controls; }
 
-  get f() {
-    return this.loginForm.controls;
-  }
+    onSubmit() {
+        this.submitted = true;
 
-  togglePasswordVisibility(): void {
-    this.showPassword = !this.showPassword;
-  }
+        // Stop here if the form is invalid (HTML will now show the red text errors)
+        if (this.form.invalid) {
+            return;
+        }
 
-  onSubmit(): void {
-    if (this.loginForm.invalid) {
-      Object.keys(this.loginForm.controls).forEach(key => {
-        this.loginForm.get(key)?.markAsTouched();
-      });
-      return;
+        this.loading = true;
+
+        this.accountService.login(this.f['email'].value, this.f['password'].value)
+            .pipe(first())
+            .subscribe({
+                next: () => {
+                    // Get return url from status routes or default to home/dashboard
+                    const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
+                    this.router.navigateByUrl(returnUrl);
+                },
+                error: error => {
+                    console.error("Login failed on backend:", error);
+                    this.loading = false;
+                }
+            });
     }
-    this.loading = true;
-    this.loginError = '';
-    const { username, password } = this.loginForm.value;
-    this.accountService.login(username, password).subscribe({
-      next: (response: any) => {
-        this.loading = false;
-        this.router.navigate([this.returnUrl]);
-      },
-      error: (error: any) => {
-        this.loading = false;
-        this.loginError = error?.error?.message || 'Login failed. Please try again.';
-      }
-    });
-  }
 }
