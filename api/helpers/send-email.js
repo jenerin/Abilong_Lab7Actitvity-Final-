@@ -1,8 +1,9 @@
 async function sendEmail({ to, subject, html }) {
     const url = 'https://api.brevo.com/v3/smtp/email';
     
+    // 10-second safety cutoff to stop the server from hanging indefinitely
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10-second safety cutoff
+    const timeoutId = setTimeout(() => controller.abort(), 10000); 
 
     const payload = {
         sender: { 
@@ -20,7 +21,7 @@ async function sendEmail({ to, subject, html }) {
             method: 'POST',
             headers: {
                 'accept': 'application/json',
-                // This grabs the secret key safely from your Render settings
+                // Dynamically pulls your master API Key safely from your Render settings
                 'api-key': process.env.SMTP_PASS, 
                 'content-type': 'application/json'
             },
