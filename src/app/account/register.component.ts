@@ -1,13 +1,17 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common'; // Required for common template directives
-import { ReactiveFormsModule } from '@angular/forms'; // Required if using forms
+import { CommonModule } from '@angular/common'; // Added
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms'; // Added ReactiveFormsModule
+import { Router } from '@angular/router';
+import { first } from 'rxjs/operators'; // This fixes the 'Cannot find name first' error
+
+import { AccountService, AlertService } from '@app/_services';
+import { mustMatch } from '@app/_helpers';
 
 @Component({
-  standalone: true, // <--- Add this
-  imports: [CommonModule, ReactiveFormsModule], // <--- Add this to fix the "not a known property" errors
-  templateUrl: './your-component.html'
+  standalone: true, // Added
+  imports: [CommonModule, ReactiveFormsModule], // Added imports for the template
+  templateUrl: 'register.component.html'
 })
-   
 export class RegisterComponent implements OnInit {
   form!: FormGroup;
   loading = false;
@@ -18,35 +22,53 @@ export class RegisterComponent implements OnInit {
     private router: Router,
     private accountService: AccountService,
     private alertService: AlertService
-  ) { }
-
-  ngOnInit() {
-    this.form = this.formBuilder.group({
-      title: ['', Validators.required],
-      firstName: ['', Validators.required],
-      lastName: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-      confirmPassword: ['', Validators.required],
-      acceptTerms: [false, Validators.requiredTrue]
-    }, { validators: mustMatch('password', 'confirmPassword') });
+  ) {
+    if (this.accountService.accountValue) {
+      this.router.navigate(['/']);
+    }
   }
 
-  get f() { return this.form.controls; }
+  ngOnInit(): void {
+    this.form = this.formBuilder.group(
+      {
+        title: ['', Validators.required],
+        firstName: ['', Validators.required],
+        lastName: ['', Validators.required],
+        email: ['', [Validators.required, Validators.email]],
+        password: ['', [Validators.required, Validators.minLength(6)]],
+        confirmPassword: ['', Validators.required],
+        acceptTerms: [false, Validators.requiredTrue]
+      },
+      {
+        validators: mustMatch('password', 'confirmPassword')
+      }
+    );
+  }
 
-  onSubmit() {
+  get f() {
+    return this.form.controls;
+  }
+
+  onSubmit(): void {
     this.submitted = true;
-    if (this.form.invalid) return;
+
+    if (this.form.invalid) {
+      return;
+    }
 
     this.loading = true;
-    this.accountService.register(this.form.value)
+    this.accountService
+      .register(this.form.value)
       .pipe(first())
       .subscribe({
         next: () => {
-          this.alertService.success('Registration successful!', { keepAfterRouteChange: true });
+          this.alertService.success('Registration successful! You can now login.', {
+            keepAfterRouteChange: true
+          });
           this.router.navigate(['/account/login']);
         },
-        error: error => {
+        // Changed 'error' to 'error: any' to satisfy the strict TS7006 error
+        error: (error: any) => {
           this.alertService.error(error);
           this.loading = false;
         }
