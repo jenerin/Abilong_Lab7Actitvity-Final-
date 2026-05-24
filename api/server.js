@@ -47,7 +47,8 @@ const PORT = process.env.PORT || 4000;
 db.authenticate()
     .then(() => {
         console.log('✅ Database connected');
-        return db.sync({ alter: true });
+        // Remove { alter: true } so it doesn't break on Render
+        return db.sync(); 
     })
     .then(() => {
         console.log('✅ Database synced');
