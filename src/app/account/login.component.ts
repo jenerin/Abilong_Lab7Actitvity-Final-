@@ -1,7 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
-// ... other imports
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router, ActivatedRoute } from '@angular/router';
+import { first } from 'rxjs/operators';
+import { AccountService, AlertService } from '@app/_services';
 
 @Component({
   standalone: true,
@@ -10,20 +12,44 @@ import { ReactiveFormsModule } from '@angular/forms';
 })
 export class LoginComponent implements OnInit {
   form!: FormGroup;
-  loading = false; // 👈 ADD THIS LINE
+  loading = false;
   submitted = false;
-}
-  onSubmit() {
+
+  constructor(
+    private formBuilder: FormBuilder,
+    private route: ActivatedRoute,
+    private router: Router,
+    private accountService: AccountService,
+    private alertService: AlertService
+  ) {}
+
+  ngOnInit(): void {
+    this.form = this.formBuilder.group({
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', Validators.required]
+    });
+  }
+
+  get f() { return this.form.controls; }
+
+  onSubmit(): void {
+    this.submitted = true;
+    this.alertService.clear();
+
+    if (this.form.invalid) return;
+
     this.loading = true;
     this.accountService.login(this.f['email'].value, this.f['password'].value)
-        .pipe(first())
-        .subscribe({
-            next: () => { /* ... */ },
-           // Replace your existing error block with this specific structure:
-error: (error: any) => {
-    console.error("Login failed:", error);
-    this.loading = false;
-}
-        });
+      .pipe(first())
+      .subscribe({
+        next: () => {
+          const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
+          this.router.navigateByUrl(returnUrl);
+        },
+        error: (error: any) => {
+          this.alertService.error(error);
+          this.loading = false;
+        }
+      });
   }
 }
