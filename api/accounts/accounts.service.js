@@ -219,59 +219,31 @@ async function getRefreshToken(token) {
     return refreshToken;
 }
 
-// 🚀 FIXED: Forces the correct Frontend base URL and styled interactive links
+// 🚀 UPDATED: Prints a short, clean line to your terminal console logs
 async function sendVerificationEmail(account, origin) {
     const frontendBase = process.env.FRONTEND_URL || 'https://abilong-lab7actitvity-final-frontend.onrender.com';
     const verifyUrl = `${frontendBase}/account/verify-email?token=${account.verificationToken}`;
     
-    console.log(`📡 [Service] Passing registration data to sendEmail wrapper for: ${account.email}`);
+    console.log(`\n👉 VERIFY LINK FOR ${account.email}:\n${verifyUrl}\n`);
     
     await sendEmail({
         to: account.email,
         subject: 'Verify your email address',
-        html: `
-            <div style="font-family: sans-serif; padding: 20px; color: #333;">
-                <h4 style="color: #2b7a78; font-size: 20px;">Verify Email</h4>
-                <p>Thanks for registering!</p>
-                <p>Please click the link below to verify your email address:</p>
-                <p style="margin: 20px 0;">
-                    <a href="${verifyUrl}" target="_blank" style="background-color: #2b7a78; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">
-                        Verify Account Now
-                    </a>
-                </p>
-                <p>If the button doesn't work, copy and paste this link into your browser:</p>
-                <p><a href="${verifyUrl}" target="_blank" style="color: #007bff; text-decoration: underline;">${verifyUrl}</a></p>
-                <br/>
-                <p>Or use this token manually: <strong style="background: #eee; padding: 2px 6px; border-radius: 3px;">${account.verificationToken}</strong></p>
-            </div>
-        `
+        html: `<p>Please verify your account by clicking here: <a href="${verifyUrl}">${verifyUrl}</a></p>`
     });
 }
 
-// 🚀 FIXED: Forces the correct Frontend base URL and styled interactive links
+// 🚀 UPDATED: Prints a short, clean line to your terminal console logs
 async function sendPasswordResetEmail(account, origin) {
     const frontendBase = process.env.FRONTEND_URL || 'https://abilong-lab7actitvity-final-frontend.onrender.com';
     const resetUrl = `${frontendBase}/account/reset-password?token=${account.resetToken}`;
     
+    console.log(`\n👉 RESET LINK FOR ${account.email}:\n${resetUrl}\n`);
+    
     await sendEmail({
         to: account.email,
         subject: 'Reset your password',
-        html: `
-            <div style="font-family: sans-serif; padding: 20px; color: #333;">
-                <h4 style="color: #2b7a78; font-size: 20px;">Reset Password</h4>
-                <p>Click the button below to reset your password:</p>
-                <p style="margin: 20px 0;">
-                    <a href="${resetUrl}" target="_blank" style="background-color: #2b7a78; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">
-                        Reset Password
-                    </a>
-                </p>
-                <p>If the button doesn't work, copy and paste this link into your browser:</p>
-                <p><a href="${resetUrl}" target="_blank" style="color: #007bff; text-decoration: underline;">${resetUrl}</a></p>
-                <br/>
-                <p>Or use this token manually: <strong style="background: #eee; padding: 2px 6px; border-radius: 3px;">${account.resetToken}</strong></p>
-                <p>The token expires in 10 minutes.</p>
-            </div>
-        `
+        html: `<p>Please reset your password by clicking here: <a href="${resetUrl}">${resetUrl}</a></p>`
     });
 }
 
