@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AccountService } from '@app/_services';   // ← Fixed path
+import { AccountService } from '@app/_services';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  styleUrls: []   // Remove .css reference or create the file
+  styleUrls: []
 })
 export class LoginComponent implements OnInit {
   loginForm: FormGroup;
@@ -21,7 +21,7 @@ export class LoginComponent implements OnInit {
     private router: Router,
     private accountService: AccountService
   ) {
-    if (this.accountService.userValue) {
+    if (this.accountService.accountValue) {    // ← Changed userValue → accountValue
       this.router.navigate(['/']);
     }
   }
@@ -55,10 +55,10 @@ export class LoginComponent implements OnInit {
     this.loading = true;
     this.loginError = '';
 
-    const { username, password, rememberMe } = this.loginForm.value;
+    const { username, password } = this.loginForm.value;   // ← removed rememberMe
 
-    this.accountService.login(username, password, rememberMe).subscribe({
-      next: (response: any) => {          // ← Added :any type
+    this.accountService.login(username, password).subscribe({   // ← 2 args only
+      next: (response: any) => {
         this.loading = false;
         this.router.navigate([this.returnUrl]);
       },
