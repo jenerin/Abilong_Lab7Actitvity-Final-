@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
 
 import { AccountService, AlertService } from '@app/_services';
 
 @Component({
-  standalone: true, // This line is missing in the files causing your error!
+  standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './verify-email.component.html'
 })
