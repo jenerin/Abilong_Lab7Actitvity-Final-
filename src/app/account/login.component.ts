@@ -16,7 +16,7 @@ export class LoginComponent implements OnInit {
   loading = false;
   submitted = false;
   returnUrl: string = '';
-  showPassword = false; // Add this property
+  showPassword = false; // Add this property for password visibility
 
   constructor(
     private formBuilder: FormBuilder,
