@@ -17,10 +17,11 @@ export class LoginComponent {
         .pipe(first())
         .subscribe({
             next: () => { /* ... */ },
-            error: (err: any) => { // 👈 Explicit type 'err'
-                console.error("Login error:", err);
-                this.loading = false; // Now 'this' is safely bound
-            }
+           // Replace your existing error block with this specific structure:
+error: (error: any) => {
+    console.error("Login failed:", error);
+    this.loading = false;
+}
         });
   }
 }
