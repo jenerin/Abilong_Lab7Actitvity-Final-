@@ -1,11 +1,14 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { CommonModule } from '@angular/common'; // Required for ngClass
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms'; // Added ReactiveFormsModule
 import { Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 
 import { AccountService, AlertService } from '@app/_services';
 
 @Component({
+  standalone: true, // Added
+  imports: [CommonModule, ReactiveFormsModule], // Added: Required for template directives
   templateUrl: 'forgot-password.component.html'
 })
 export class ForgotPasswordComponent implements OnInit {
@@ -51,6 +54,7 @@ export class ForgotPasswordComponent implements OnInit {
         },
         error: (error: any) => {
           this.alertService.error(error);
+          this.loading = false; // Ensure loading is reset on error
         },
         complete: () => {
           this.loading = false;
