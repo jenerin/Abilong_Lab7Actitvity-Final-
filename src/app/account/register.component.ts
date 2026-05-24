@@ -9,7 +9,7 @@ import { mustMatch } from '@app/_helpers';
 @Component({
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './register.component.html'
+  templateUrl: 'register.component.html'
 })
 export class RegisterComponent implements OnInit {
   form!: FormGroup;
@@ -21,9 +21,9 @@ export class RegisterComponent implements OnInit {
     private router: Router,
     private accountService: AccountService,
     private alertService: AlertService
-  ) {}
+  ) { }
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.form = this.formBuilder.group({
       title: ['', Validators.required],
       firstName: ['', Validators.required],
@@ -32,17 +32,13 @@ export class RegisterComponent implements OnInit {
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', Validators.required],
       acceptTerms: [false, Validators.requiredTrue]
-    }, {
-      validators: mustMatch('password', 'confirmPassword')
-    });
+    }, { validators: mustMatch('password', 'confirmPassword') });
   }
 
   get f() { return this.form.controls; }
 
-  onSubmit(): void {
+  onSubmit() {
     this.submitted = true;
-    this.alertService.clear();
-
     if (this.form.invalid) return;
 
     this.loading = true;
@@ -50,10 +46,10 @@ export class RegisterComponent implements OnInit {
       .pipe(first())
       .subscribe({
         next: () => {
-          this.alertService.success('Registration successful', { keepAfterRouteChange: true });
+          this.alertService.success('Registration successful!', { keepAfterRouteChange: true });
           this.router.navigate(['/account/login']);
         },
-        error: (error: any) => {
+        error: error => {
           this.alertService.error(error);
           this.loading = false;
         }
