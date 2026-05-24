@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common'; // Required for ngClass
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms'; // Required for forms
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 import { AccountService, AlertService } from '@app/_services';
 
 @Component({
-  standalone: true, // MUST be true
-  imports: [CommonModule, ReactiveFormsModule], // REQUIRED for template directives
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: 'forgot-password.component.html'
 })
 export class ForgotPasswordComponent implements OnInit {
@@ -20,13 +20,9 @@ export class ForgotPasswordComponent implements OnInit {
     private router: Router,
     private accountService: AccountService,
     private alertService: AlertService
-  ) {
-    if (this.accountService.accountValue) {
-      this.router.navigate(['/']);
-    }
-  }
+  ) { }
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.form = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]]
     });
@@ -34,7 +30,7 @@ export class ForgotPasswordComponent implements OnInit {
 
   get f() { return this.form.controls; }
 
-  onSubmit(): void {
+  onSubmit() {
     this.submitted = true;
     if (this.form.invalid) return;
 
@@ -42,8 +38,8 @@ export class ForgotPasswordComponent implements OnInit {
     this.accountService.forgotPassword(this.f['email'].value)
       .pipe(first())
       .subscribe({
-        next: () => this.alertService.success('Please check your email.'),
-        error: (error: any) => { this.alertService.error(error); this.loading = false; }
+        next: () => this.alertService.success('Check your email.'),
+        error: error => { this.alertService.error(error); this.loading = false; }
       });
   }
 }
