@@ -13,18 +13,19 @@ import { ResetPasswordComponent } from './reset-password.component';
 @NgModule({
   imports: [
     CommonModule,
-    ReactiveFormsModule,
+    ReactiveFormsModule, // 👈 Fixes the 'formGroup' and 'ngClass' errors for LoginComponent
     AccountRoutingModule,
     
-    // ✅ Standalone components MUST be imported here:
-    LoginComponent,
+    // ✅ ONLY keep actual Standalone components here:
     RegisterComponent,
     VerifyEmailComponent,
     ForgotPasswordComponent,
     ResetPasswordComponent
   ],
   declarations: [
-    LayoutComponent // 👈 Only keep non-standalone layout templates here
+    // 🏛️ Classic components MUST be declared here:
+    LayoutComponent,
+    LoginComponent 
   ]
 })
 export class AccountModule { }
