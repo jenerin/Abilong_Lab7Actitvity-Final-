@@ -1,36 +1,36 @@
-const nodemailer = require('nodemailer');
-
 async function sendEmail({ to, subject, html }) {
-    // Create the transport layer using port 465 with secure set to true
-    const transporter = nodemailer.createTransport({
-        host: process.env.SMTP_HOST || 'smtp-relay.brevo.com',
-        port: parseInt(process.env.SMTP_PORT || '465', 10), 
-        secure: true, // Must be TRUE for port 465
-        auth: {
-            user: process.env.SMTP_USER,
-            pass: process.env.SMTP_PASS
+    const url = 'https://api.brevo.com/v3/smtp/email';
+    
+    const payload = {
+        sender: { 
+            // This automatically pulls your authenticated email from Render env
+            email: process.env.SMTP_USER 
         },
-        connectionTimeout: parseInt(process.env.SMTP_TIMEOUT || '10000', 10), // Stop the 5-minute freeze
-        tls: {
-            rejectUnauthorized: false
-        }
-    });
-
-    // Configure your mail parameters
-    const mailOptions = {
-        // Dynamically uses your authenticated Brevo user email
-        from: process.env.SMTP_USER, 
-        to: to,
+        to: [{ email: to }],
         subject: subject,
-        html: html
+        htmlContent: html
     };
 
     try {
-        const info = await transporter.sendMail(mailOptions);
-        console.log(`📩 Email sent successfully to ${to}. Response: ${info.response}`);
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'accept': 'application/json',
+                'api-key': process.env.SMTP_PASS, // Uses your master Brevo secret key
+                'content-type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            console.log(`📩 Email sent via Brevo API successfully to ${to}. MessageId: ${data.messageId}`);
+        } else {
+            console.error('❌ Brevo API rejected the request:', data.message || data);
+        }
     } catch (error) {
-        // Log the exact error to the Render terminal console without crashing the database registration pipeline
-        console.error('❌ Brevo SMTP Email failed to send:', error.message);
+        console.error('❌ Failed to connect to Brevo API endpoint:', error.message);
     }
 }
 
