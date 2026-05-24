@@ -1,16 +1,16 @@
 import { Component, OnInit } from '@angular/core';
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common'; // Required for common template directives
-import { ReactiveFormsModule } from '@angular/forms'; // Required if using forms
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { first } from 'rxjs/operators';
+import { AccountService, AlertService } from '@app/_services';
 
 @Component({
-  standalone: true, // <--- Add this
-  imports: [CommonModule, ReactiveFormsModule], // <--- Add this to fix the "not a known property" errors
-  templateUrl: './your-component.html'
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule],
+  templateUrl: 'forgot-password.component.html'
 })
-export class YourComponent implements OnInit {
-   // ... your existing logic
-
+export class ForgotPasswordComponent implements OnInit {
   form!: FormGroup;
   loading = false;
   submitted = false;
@@ -20,9 +20,11 @@ export class YourComponent implements OnInit {
     private router: Router,
     private accountService: AccountService,
     private alertService: AlertService
-  ) { }
+  ) {
+    if (this.accountService.accountValue) this.router.navigate(['/']);
+  }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.form = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]]
     });
@@ -30,7 +32,7 @@ export class YourComponent implements OnInit {
 
   get f() { return this.form.controls; }
 
-  onSubmit() {
+  onSubmit(): void {
     this.submitted = true;
     if (this.form.invalid) return;
 
@@ -39,7 +41,7 @@ export class YourComponent implements OnInit {
       .pipe(first())
       .subscribe({
         next: () => this.alertService.success('Check your email.'),
-        error: error => { this.alertService.error(error); this.loading = false; }
+        error: (error: any) => { this.alertService.error(error); this.loading = false; }
       });
   }
 }
