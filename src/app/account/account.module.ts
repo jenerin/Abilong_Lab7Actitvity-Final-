@@ -14,16 +14,15 @@ import { ResetPasswordComponent } from './reset-password.component';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    AccountRoutingModule,
-    // List your standalone components here if you are importing them via this module
-    LoginComponent,
-    RegisterComponent,
-    VerifyEmailComponent,
-    ForgotPasswordComponent,
-    ResetPasswordComponent
+    AccountRoutingModule
   ],
   declarations: [
-    LayoutComponent // Keep only non-standalone components here
+    LayoutComponent,
+    LoginComponent,      // 👈 Moved here
+    RegisterComponent,   // 👈 Moved here
+    VerifyEmailComponent,// 👈 Moved here
+    ForgotPasswordComponent, // 👈 Moved here
+    ResetPasswordComponent   // 👈 Moved here
   ]
 })
 export class AccountModule { }
