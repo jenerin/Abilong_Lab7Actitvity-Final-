@@ -1,8 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
-
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 
@@ -16,7 +14,7 @@ enum TokenStatus {
 }
 
 @Component({
-  standalone: true, // This line is missing in the files causing your error!
+  standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: 'reset-password.component.html'
 })
@@ -77,7 +75,7 @@ export class ResetPasswordComponent implements OnInit {
   onSubmit(): void {
     this.submitted = true;
 
-    if (this.form.invalid) {
+    if (this.form?.invalid) {
       return;
     }
 
