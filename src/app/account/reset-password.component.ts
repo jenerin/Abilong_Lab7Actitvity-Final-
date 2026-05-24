@@ -13,6 +13,8 @@ enum TokenStatus {
 }
 
 @Component({
+  standalone: true, // This line is missing in the files causing your error!
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: 'reset-password.component.html'
 })
 export class ResetPasswordComponent implements OnInit {
