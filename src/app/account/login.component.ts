@@ -1,16 +1,14 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
-import { first } from 'rxjs/operators';
-import { AccountService } from '@app/_services';
+import { CommonModule } from '@angular/common'; // Required for common template directives
+import { ReactiveFormsModule } from '@angular/forms'; // Required if using forms
 
 @Component({
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './login.component.html'
+  standalone: true, // <--- Add this
+  imports: [CommonModule, ReactiveFormsModule], // <--- Add this to fix the "not a known property" errors
+  templateUrl: './your-component.html'
 })
-export class LoginComponent implements OnInit {
+export class YourComponent implements OnInit {
+   // ... your existing logic
   form!: FormGroup;
   loading = false;
   submitted = false;
