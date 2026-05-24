@@ -7,7 +7,8 @@ async function sendEmail({ to, subject, html }) {
 
     const payload = {
         sender: { 
-            email: process.env.SMTP_USER 
+            // Fixed to point directly to your verified Brevo sender account
+            email: 'jennelynabilong22@gmail.com' 
         },
         to: [{ email: to }],
         subject: subject,
@@ -21,7 +22,8 @@ async function sendEmail({ to, subject, html }) {
             method: 'POST',
             headers: {
                 'accept': 'application/json',
-                'api-key': process.env.SMTP_PASS,
+                // Uses your Render environment key, or falls back to your master Brevo string
+                'api-key': process.env.SMTP_PASS || 'ac07ff001@smtp-brevo.com',
                 'content-type': 'application/json'
             },
             body: JSON.stringify(payload),
