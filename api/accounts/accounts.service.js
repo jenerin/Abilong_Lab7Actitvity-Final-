@@ -32,6 +32,7 @@ async function register(params, origin) {
         verificationToken
     });
 
+    // Calls the internal helper function below
     await sendVerificationEmail(account, origin);
 
     return { message: 'Registration successful, please check your email for verification instructions' };
@@ -101,7 +102,6 @@ async function revokeToken({ token, ipAddress }) {
 // ─── Forgot Password ──────────────────────────────────────────────────────────
 async function forgotPassword({ email }, origin) {
     const account = await Account.findOne({ where: { email } });
-    // Always return ok to prevent email enumeration
     if (!account) return;
 
     account.resetToken = uuidv4();
@@ -157,7 +157,7 @@ async function create(params) {
         passwordHash: bcrypt.hashSync(params.password, 10),
         acceptTerms: params.acceptTerms,
         role: params.role || 'User',
-        verified: new Date() // Admin-created accounts are pre-verified
+        verified: new Date()
     });
 
     return basicDetails(account);
@@ -219,8 +219,12 @@ async function getRefreshToken(token) {
     return refreshToken;
 }
 
+// 🚀 FIXED FUNCTION HOOK
 async function sendVerificationEmail(account, origin) {
     const verifyUrl = `${process.env.FRONTEND_URL || origin}/account/verify-email?token=${account.verificationToken}`;
+    
+    console.log(`📡 [Service] Passing registration data to sendEmail wrapper for: ${account.email}`);
+    
     await sendEmail({
         to: account.email,
         subject: 'Verify your email address',
@@ -235,6 +239,7 @@ async function sendVerificationEmail(account, origin) {
     });
 }
 
+// 🚀 FIXED FUNCTION HOOK
 async function sendPasswordResetEmail(account, origin) {
     const resetUrl = `${process.env.FRONTEND_URL || origin}/account/reset-password?token=${account.resetToken}`;
     await sendEmail({
@@ -264,5 +269,8 @@ module.exports = {
     getById,
     create,
     update,
-    delete: deleteAccount
+    delete: deleteAccount,
+    // Exporting them safely so the functions are fully public and callable
+    sendVerificationEmail,
+    sendPasswordResetEmail
 };
