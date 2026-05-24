@@ -14,10 +14,10 @@ const db = require('./config/database');
 
 const app = express();
 
-// 🚀 FIXED CORS: Explicitly allowing your live Render URL
+// 🚀 FIXED CORS: Whitelisting your actual live FRONTEND URL
 const allowedOrigins = [
     'http://localhost:4200',
-    'https://abilong-lab7actitvity-final.onrender.com'
+    'https://abilong-lab7actitvity-final-frontend.onrender.com' // 🧠 Changed to the frontend domain!
 ];
 
 app.use(cors({
