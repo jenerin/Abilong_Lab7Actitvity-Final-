@@ -1,12 +1,11 @@
 <h2>Register</h2>
 
-<form [formGroup]="form" (ngSubmit)="loading = true; onSubmit()">
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
 
   <select
     formControlName="title"
     class="form-select"
-    [ngClass]="{ 'is-invalid': submitted && f['title'].errors }"
-  >
+    [ngClass]="{ 'is-invalid': submitted && f['title'].errors }">
     <option value="">Title</option>
     <option value="Mr">Mr</option>
     <option value="Mrs">Mrs</option>
@@ -47,8 +46,8 @@
     [ngClass]="{ 'is-invalid': submitted && f['email'].errors }"
   />
   <div *ngIf="submitted && f['email'].errors" class="invalid-feedback d-block">
-    <span *ngIf="f['email'].errors['required']">Email is required</span>
-    <span *ngIf="f['email'].errors['email']">Enter a valid email</span>
+    <span *ngIf="f['email'].errors?.['required']">Email is required</span>
+    <span *ngIf="f['email'].errors?.['email']">Enter a valid email</span>
   </div>
 
   <input
@@ -59,8 +58,8 @@
     [ngClass]="{ 'is-invalid': submitted && f['password'].errors }"
   />
   <div *ngIf="submitted && f['password'].errors" class="invalid-feedback d-block">
-    <span *ngIf="f['password'].errors['required']">Password is required</span>
-    <span *ngIf="f['password'].errors['minlength']">Min 6 characters</span>
+    <span *ngIf="f['password'].errors?.['required']">Password is required</span>
+    <span *ngIf="f['password'].errors?.['minlength']">Min 6 characters</span>
   </div>
 
   <input
@@ -81,6 +80,7 @@
       formControlName="acceptTerms"
       class="form-check-input"
       id="acceptTerms"
+      [ngClass]="{ 'is-invalid': submitted && f['acceptTerms'].errors }"
     />
     <label class="form-check-label" for="acceptTerms">
       I agree to the Terms &amp; Conditions
@@ -90,12 +90,12 @@
     </div>
   </div>
 
-  <button [disabled]="loading" class="btn btn-primary">
+  <button [disabled]="loading" class="btn btn-primary mt-3">
     <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
     Register
   </button>
 </form>
 
-<div class="auth-links">
-  Already have an account? <a routerLink="../login">[Log In]</a>
+<div class="auth-links mt-2">
+  Already have an account? <a routerLink="../login">Log In</a>
 </div>
