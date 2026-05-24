@@ -12,8 +12,9 @@ import { AccountService, AlertService } from '@app/_services';
 })
 export class LoginComponent implements OnInit {
   form!: FormGroup;
-  loading = false; // Property added to fix the "does not exist" error
+  loading = false;
   submitted = false;
+  showPassword = false; // Added to fix the build error
 
   constructor(
     private formBuilder: FormBuilder,
@@ -28,6 +29,11 @@ export class LoginComponent implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required]
     });
+  }
+
+  // Function to toggle password visibility
+  toggleShowPassword(): void {
+    this.showPassword = !this.showPassword;
   }
 
   get f() { return this.form.controls; }
