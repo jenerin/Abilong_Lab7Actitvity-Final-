@@ -15,7 +15,7 @@ import { ResetPasswordComponent } from './reset-password.component';
     CommonModule, 
     ReactiveFormsModule, 
     AccountRoutingModule,
-    // Add standalone components here to the imports array:
+    // Add ALL standalone components here
     LoginComponent,
     RegisterComponent,
     VerifyEmailComponent,
@@ -23,7 +23,7 @@ import { ResetPasswordComponent } from './reset-password.component';
     ResetPasswordComponent
   ],
   declarations: [
-    LayoutComponent // Keep only non-standalone components in declarations
+    LayoutComponent // ONLY non-standalone components go here
   ]
 })
 export class AccountModule {}
