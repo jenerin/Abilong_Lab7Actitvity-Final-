@@ -16,13 +16,13 @@
     Title is required
   </div>
 
-  <input
-    type="text"
-    formControlName="firstName"
-    class="form-control"
-    placeholder="First Name"
-    [ngClass]="{ 'is-invalid': submitted && f['firstName'].errors }"
-  />
+  <input 
+  type="checkbox" 
+  formControlName="acceptTerms" 
+  class="form-check-input" 
+  [class.is-invalid]="submitted && f['acceptTerms'].errors"
+  id="acceptTerms" 
+/>
   <div *ngIf="submitted && f['firstName'].errors" class="invalid-feedback d-block">
     First Name is required
   </div>
