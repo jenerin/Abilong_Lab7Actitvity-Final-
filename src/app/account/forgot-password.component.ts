@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { first, finalize } from 'rxjs/operators';
-
 import { AccountService, AlertService } from '@app/_services';
 
 @Component({ templateUrl: 'forgot-password.component.html', standalone: false })
@@ -22,24 +21,18 @@ export class ForgotPasswordComponent implements OnInit {
         });
     }
 
-    // convenience getter for easy access to form fields
     get f() { return this.form.controls; }
 
     onSubmit() {
         this.submitted = true;
-
-        // reset alerts on submit
         this.alertService.clear();
 
-        // stop here if form is invalid
-        if (this.form.invalid) {
-            return;
-        }
+        if (this.form.invalid) return;
 
         this.loading = true;
         
-        // FIXED: Switched from dot notation to bracket notation for strict index compliance
-        this.accountService.forgotPassword(this.f['email'].value)
+        // FIX: Ensure you send an object with the key 'email'
+        this.accountService.forgotPassword({ email: this.f['email'].value })
             .pipe(
                 first(),
                 finalize(() => this.loading = false)
