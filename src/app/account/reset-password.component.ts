@@ -1,99 +1,91 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Location } from '@angular/common';
 import { first } from 'rxjs/operators';
 
 import { AccountService, AlertService } from '@app/_services';
-import { mustMatch } from '@app/_helpers';
+import { MustMatch } from '@app/_helpers';
 
 enum TokenStatus {
-  Validating,
-  Valid,
-  Invalid
+    Validating,
+    Valid,
+    Invalid
 }
 
-@Component({
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: 'reset-password.component.html'
-})
+@Component({ templateUrl: 'reset-password.component.html', standalone: false })
 export class ResetPasswordComponent implements OnInit {
-  TokenStatus = TokenStatus;
-  tokenStatus = TokenStatus.Validating;
-  form!: FormGroup;
-  loading = false;
-  submitted = false;
-  token: string = '';
+    TokenStatus = TokenStatus;
+    tokenStatus = TokenStatus.Validating;
+    token?: string;
+    form!: FormGroup;
+    loading = false;
+    submitted = false;
 
-  constructor(
-    private formBuilder: FormBuilder,
-    private route: ActivatedRoute,
-    private router: Router,
-    private accountService: AccountService,
-    private alertService: AlertService
-  ) {
-    if (this.accountService.accountValue) {
-      this.router.navigate(['/']);
-    }
-  }
+    constructor(
+        private formBuilder: FormBuilder,
+        private route: ActivatedRoute,
+        private router: Router,
+        private accountService: AccountService,
+        private alertService: AlertService,
+        private location: Location,
+        private cdr: ChangeDetectorRef
+    ) { }
 
-  ngOnInit(): void {
-    this.token = this.route.snapshot.queryParams['token'];
+    ngOnInit() {
+        this.form = this.formBuilder.group({
+            password: ['', [Validators.required, Validators.minLength(6)]],
+            confirmPassword: ['', Validators.required],
+        }, {
+            validator: MustMatch('password', 'confirmPassword')
+        });
 
-    if (!this.token) {
-      this.tokenStatus = TokenStatus.Invalid;
-      return;
-    }
+        const token = this.route.snapshot.queryParams['token'];
 
-    this.accountService
-      .validateResetToken(this.token)
-      .pipe(first())
-      .subscribe({
-        next: () => {
-          this.tokenStatus = TokenStatus.Valid;
-          this.form = this.formBuilder.group(
-            {
-              password: ['', [Validators.required, Validators.minLength(6)]],
-              confirmPassword: ['', Validators.required]
-            },
-            {
-              validators: mustMatch('password', 'confirmPassword')
-            }
-          );
-        },
-        error: () => {
-          this.tokenStatus = TokenStatus.Invalid;
-        }
-      });
-  }
+        // Use location.replaceState to silently update the URL without
+        // triggering Angular's navigation cycle (which would destroy the component)
+        this.location.replaceState('/account/reset-password');
 
-  get f() {
-    return this.form?.controls;
-  }
-
-  onSubmit(): void {
-    this.submitted = true;
-
-    if (this.form?.invalid) {
-      return;
+        this.accountService.validateResetToken(token)
+            .pipe(first())
+            .subscribe({
+                next: () => {
+                    this.token = token;
+                    this.tokenStatus = TokenStatus.Valid;
+                    this.cdr.detectChanges();
+                },
+                error: () => {
+                    this.tokenStatus = TokenStatus.Invalid;
+                    this.cdr.detectChanges();
+                }
+            });
     }
 
-    this.loading = true;
-    this.accountService
-      .resetPassword(this.token, this.f['password'].value, this.f['confirmPassword'].value)
-      .pipe(first())
-      .subscribe({
-        next: () => {
-          this.alertService.success('Password reset successful, you can now login', {
-            keepAfterRouteChange: true
-          });
-          this.router.navigate(['../login'], { relativeTo: this.route });
-        },
-        error: (error: any) => {
-          this.alertService.error(error);
-          this.loading = false;
-        }
-      });
-  }
+    get f() { return this.form.controls; }
+
+    onSubmit() {
+        this.submitted = true;
+        this.cdr.detectChanges();
+
+        this.alertService.clear();
+
+        if (this.form.invalid) return;
+
+        this.loading = true;
+        this.cdr.detectChanges();
+
+        this.accountService.resetPassword(this.token!, this.f['password'].value, this.f['confirmPassword'].value)
+            .pipe(first())
+            .subscribe({
+                next: () => {
+                    this.alertService.success('Password reset successful, you can now login', { keepAfterRouteChange: true });
+                    this.router.navigate(['/account/login']);
+                },
+                error: error => {
+                    this.alertService.error(error);
+                    this.loading = false;
+                    this.cdr.detectChanges();
+                }
+            });
+    }
 }
