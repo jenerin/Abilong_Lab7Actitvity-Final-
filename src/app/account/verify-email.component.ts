@@ -1,54 +1,45 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
+import { Location } from '@angular/common';
 import { first } from 'rxjs/operators';
-import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
+
 import { AccountService, AlertService } from '@app/_services';
 
-@Component({
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './verify-email.component.html'
-})
+enum EmailStatus {
+    Verifying,
+    Failed
+}
+
+@Component({ templateUrl: 'verify-email.component.html', standalone: false })
 export class VerifyEmailComponent implements OnInit {
-  loading = true;
-  error: string | null = null;
+    EmailStatus = EmailStatus;
+    emailStatus = EmailStatus.Verifying;
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private accountService: AccountService,
-    private alertService: AlertService
-  ) {
-    if (this.accountService.accountValue) {
-      this.router.navigate(['/']);
+    constructor(
+        private route: ActivatedRoute,
+        private router: Router,
+        private accountService: AccountService,
+        private alertService: AlertService,
+        private location: Location,
+        private cdr: ChangeDetectorRef
+    ) { }
+
+    ngOnInit() {
+        const token = this.route.snapshot.queryParams['token'];
+
+        this.location.replaceState('/account/verify-email');
+
+        this.accountService.verifyEmail(token)
+            .pipe(first())
+            .subscribe({
+                next: () => {
+                    this.alertService.success('Verification successful, you can now login', { keepAfterRouteChange: true });
+                    this.router.navigate(['/account/login']);
+                },
+                error: () => {
+                    this.emailStatus = EmailStatus.Failed;
+                    this.cdr.detectChanges();
+                }
+            });
     }
-  }
-
-  ngOnInit(): void {
-    const token = this.route.snapshot.queryParams['token'];
-
-    if (!token) {
-      this.error = 'Verification token is missing. Please use the link from your email.';
-      this.loading = false;
-      return;
-    }
-
-    this.accountService
-      .verifyEmail(token)
-      .pipe(first())
-      .subscribe({
-        next: () => {
-          this.loading = false;
-          this.alertService.success('Verification successful, you can now login', {
-            keepAfterRouteChange: true
-          });
-          this.router.navigate(['/account/login']);
-        },
-        error: (error: any) => {
-          this.error = error;
-          this.loading = false;
-        }
-      });
-  }
 }
