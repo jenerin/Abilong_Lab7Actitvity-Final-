@@ -65,7 +65,10 @@ function authenticate(req, res, next) {
 }
 
 function register(req, res, next) {
-    accountsService.register(req.body, req.get('origin'))
+    // 🚀 FIXED: Dynamic fallback check to guarantee origin string presence on production hosting platforms
+    const clientOrigin = req.get('Origin') || req.get('origin') || process.env.FRONTEND_URL || 'https://abilong-lab7actitvity-final-frontend.onrender.com';
+    
+    accountsService.register(req.body, clientOrigin)
         .then(result => res.json(result))
         .catch(next);
 }
@@ -77,7 +80,8 @@ function verifyEmail(req, res, next) {
 }
 
 function forgotPassword(req, res, next) {
-    accountsService.forgotPassword(req.body, req.get('origin'))
+    const clientOrigin = req.get('Origin') || req.get('origin') || process.env.FRONTEND_URL || 'https://abilong-lab7actitvity-final-frontend.onrender.com';
+    accountsService.forgotPassword(req.body, clientOrigin)
         .then(() => res.json({ message: 'Please check your email for password reset instructions' }))
         .catch(next);
 }
@@ -102,7 +106,7 @@ function refreshToken(req, res, next) {
             setTokenCookie(res, refreshToken);
             res.json(account);
         })
-        .catch(() => res.json(null)); // Return null if no valid refresh token (not logged in)
+        .catch(() => res.json(null));
 }
 
 function revokeToken(req, res, next) {
@@ -123,7 +127,6 @@ function getAll(req, res, next) {
 }
 
 function getById(req, res, next) {
-    // Users can only get their own account, admins can get any
     if (req.params.id !== req.account.id.toString() && req.account.role !== 'Admin') {
         return res.status(403).json({ message: 'Forbidden' });
     }
@@ -139,7 +142,6 @@ function create(req, res, next) {
 }
 
 function update(req, res, next) {
-    // Users can only update their own account, admins can update any
     if (req.params.id !== req.account.id.toString() && req.account.role !== 'Admin') {
         return res.status(403).json({ message: 'Forbidden' });
     }
@@ -201,33 +203,6 @@ function resetPasswordSchema(req, res, next) {
     validateRequest(req, next, schema);
 }
 
-function createSchema(req, res, next) {
-    const schema = Joi.object({
-        title: Joi.string().allow('', null),
-        firstName: Joi.string().required(),
-        lastName: Joi.string().required(),
-        email: Joi.string().email().required(),
-        password: Joi.string().min(6).required(),
-        confirmPassword: Joi.string().valid(Joi.ref('password')).required(),
-        role: Joi.string().valid('Admin', 'User').required(),
-        acceptTerms: Joi.boolean()
-    });
-    validateRequest(req, next, schema);
-}
-
-function updateSchema(req, res, next) {
-    const schema = Joi.object({
-        title: Joi.string().allow('', null),
-        firstName: Joi.string().empty(''),
-        lastName: Joi.string().empty(''),
-        email: Joi.string().email().empty(''),
-        password: Joi.string().min(6).empty(''),
-        confirmPassword: Joi.string().valid(Joi.ref('password')).empty(''),
-        role: Joi.string().valid('Admin', 'User').empty('')
-    });
-    validateRequest(req, next, schema);
-}
-
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function setTokenCookie(res, token) {
@@ -235,7 +210,7 @@ function setTokenCookie(res, token) {
         httpOnly: true,
         expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
         sameSite: 'None',
-        secure: process.env.NODE_ENV === 'production'
+        secure: true
     };
     res.cookie('refreshToken', token, cookieOptions);
 }
