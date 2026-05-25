@@ -1,47 +1,48 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
-import { first } from 'rxjs/operators';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { first, finalize } from 'rxjs/operators';
+
 import { AccountService, AlertService } from '@app/_services';
 
-@Component({
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: 'forgot-password.component.html'
-})
+@Component({ templateUrl: 'forgot-password.component.html', standalone: false })
 export class ForgotPasswordComponent implements OnInit {
-  form!: FormGroup;
-  loading = false;
-  submitted = false;
+    form!: FormGroup;
+    loading = false;
+    submitted = false;
 
-  constructor(
-    private formBuilder: FormBuilder,
-    private router: Router,
-    private accountService: AccountService,
-    private alertService: AlertService
-  ) {
-    if (this.accountService.accountValue) this.router.navigate(['/']);
-  }
+    constructor(
+        private formBuilder: FormBuilder,
+        private accountService: AccountService,
+        private alertService: AlertService
+    ) { }
 
-  ngOnInit(): void {
-    this.form = this.formBuilder.group({
-      email: ['', [Validators.required, Validators.email]]
-    });
-  }
+    ngOnInit() {
+        this.form = this.formBuilder.group({
+            email: ['', [Validators.required, Validators.email]]
+        });
+    }
 
-  get f() { return this.form.controls; }
+    // convenience getter for easy access to form fields
+    get f() { return this.form.controls; }
 
-  onSubmit(): void {
-    this.submitted = true;
-    if (this.form.invalid) return;
+    onSubmit() {
+        this.submitted = true;
 
-    this.loading = true;
-    this.accountService.forgotPassword(this.f['email'].value)
-      .pipe(first())
-      .subscribe({
-        next: () => this.alertService.success('Check your email.'),
-        error: (error: any) => { this.alertService.error(error); this.loading = false; }
-      });
-  }
+        // reset alerts on submit
+        this.alertService.clear();
+
+        // stop here if form is invalid
+        if (this.form.invalid) {
+            return;
+        }
+
+        this.loading = true;
+        this.accountService.forgotPassword(this.f.email.value)
+            .pipe(first())
+            .pipe(finalize(() => this.loading = false))
+            .subscribe({
+                next: () => this.alertService.success('Please check your email for password reset instructions'),
+                error: error => this.alertService.error(error)
+            });
+    }
 }
