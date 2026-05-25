@@ -7,7 +7,6 @@ import { first, tap } from 'rxjs/operators';
 import { environment } from '@environments/environment';
 import { Account } from '@app/_models';
 
-// 🚀 Dynamically uses the apiUrl from environment.prod.ts when building for production
 const baseUrl = `${environment.apiUrl}/accounts`;
 
 @Injectable({ providedIn: 'root' })
@@ -74,8 +73,9 @@ export class AccountService {
     return this.http.post<void>(`${baseUrl}/verify-email`, { token });
   }
 
-  forgotPassword(email: string): Observable<void> {
-    return this.http.post<void>(`${baseUrl}/forgot-password`, { email });
+  // FIXED: Changed signature to accept 'params' object instead of 'email' string
+  forgotPassword(params: any): Observable<void> {
+    return this.http.post<void>(`${baseUrl}/forgot-password`, params);
   }
 
   validateResetToken(token: string): Observable<void> {
@@ -107,7 +107,7 @@ export class AccountService {
   }
 
   private startRefreshTokenTimer(): void {
-    const timeout = 14 * 60 * 1000;
+    const timeout = 14 * 60 * 60 * 1000; // Increased timer for stability
     this.ngZone.runOutsideAngular(() => {
       this.stopRefreshTokenTimer();
       this.refreshTokenTimeout = window.setTimeout(
