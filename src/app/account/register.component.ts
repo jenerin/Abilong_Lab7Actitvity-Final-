@@ -42,8 +42,10 @@ export class RegisterComponent implements OnInit {
         this.submitted = true;
         this.cdr?.detectChanges();
 
+        // Reset alerts on submit
         this.alertService.clear();
 
+        // Stop here if form is invalid
         if (this.form.invalid) {
             return;
         }
@@ -51,10 +53,10 @@ export class RegisterComponent implements OnInit {
         this.submitting = true;
         this.cdr?.detectChanges();
 
-        // Capture the user email to construct our success message banner dynamically
+        // Capture the typed email string dynamically for the banner message
         const userEmail = this.f['email'].value;
 
-        // FIXED: Added acceptTerms explicitly to fulfill backend requirement
+        // Construct a clean payload explicitly passing required fields to the backend 
         const registerPayload = {
             title: this.f['title'].value,
             firstName: this.f['firstName'].value,
@@ -62,18 +64,22 @@ export class RegisterComponent implements OnInit {
             email: userEmail,
             password: this.f['password'].value,
             confirmPassword: this.f['confirmPassword'].value,
-            acceptTerms: this.f['acceptTerms'].value // Sending the true/false value to the backend
+            acceptTerms: this.f['acceptTerms'].value 
         };
 
         this.accountService.register(registerPayload)
             .pipe(first())
             .subscribe({
                 next: () => {
-                    // 🚀 FIXED: Dynamic success banner targeting the user's explicit email address
+                    // 🚀 Displays the dynamic alert message with the exact email used
                     this.alertService.success(`Verification link sent to ${userEmail}. Please check your inbox!`, { keepAfterRouteChange: true });
                     
-                    // 🚀 FIXED: Absolute route navigation to instantly redirect the page view to login
-                    this.router.navigate(['/account/login']);
+                    // 🚀 Redirects directly and absolutely to the login view page
+                    this.router.navigate(['/account/login'])
+                        .then(() => {
+                            this.submitting = false;
+                            this.cdr?.detectChanges();
+                        });
                 },
                 error: error => {
                     this.alertService.error(error);
