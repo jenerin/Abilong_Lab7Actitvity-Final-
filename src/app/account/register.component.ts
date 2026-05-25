@@ -42,10 +42,8 @@ export class RegisterComponent implements OnInit {
         this.submitted = true;
         this.cdr?.detectChanges();
 
-        // reset alerts on submit
         this.alertService.clear();
 
-        // stop here if form is invalid
         if (this.form.invalid) {
             return;
         }
@@ -53,15 +51,15 @@ export class RegisterComponent implements OnInit {
         this.submitting = true;
         this.cdr?.detectChanges();
 
-        // FIX: Construct a clean payload filtering out UI-only controls (like acceptTerms) 
-        // to prevent Node.js backend schema validation from returning a 400 Bad Request
+        // FIXED: Added acceptTerms explicitly to fulfill backend requirement
         const registerPayload = {
             title: this.f['title'].value,
             firstName: this.f['firstName'].value,
             lastName: this.f['lastName'].value,
             email: this.f['email'].value,
             password: this.f['password'].value,
-            confirmPassword: this.f['confirmPassword'].value
+            confirmPassword: this.f['confirmPassword'].value,
+            acceptTerms: this.f['acceptTerms'].value // Sending the true/false value to the backend
         };
 
         this.accountService.register(registerPayload)
