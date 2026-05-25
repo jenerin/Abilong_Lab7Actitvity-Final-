@@ -23,7 +23,6 @@ router.delete('/:id', authorize('Admin'), _delete);
 module.exports = router;
 
 // --- Route Handlers ---
-
 function authenticate(req, res, next) {
     const ipAddress = req.ip;
     accountsService.authenticate(req.body, ipAddress)
@@ -103,11 +102,9 @@ function _delete(req, res, next) {
 }
 
 // --- Schemas & Helpers ---
-
 function authenticateSchema(req, res, next) { const schema = Joi.object({ email: Joi.string().email().required(), password: Joi.string().required() }); validateRequest(req, next, schema); }
 function registerSchema(req, res, next) { const schema = Joi.object({ title: Joi.string().allow('', null), firstName: Joi.string().required(), lastName: Joi.string().required(), email: Joi.string().email().required(), password: Joi.string().min(6).required(), confirmPassword: Joi.string().valid(Joi.ref('password')).required(), acceptTerms: Joi.boolean().valid(true).required() }); validateRequest(req, next, schema); }
 function verifyEmailSchema(req, res, next) { const schema = Joi.object({ token: Joi.string().required() }); validateRequest(req, next, schema); }
-// FIXED: Removed the extra argument in the line below
 function forgotPasswordSchema(req, res, next) { const schema = Joi.object({ email: Joi.string().email().required() }); validateRequest(req, next, schema); }
 function validateResetTokenSchema(req, res, next) { const schema = Joi.object({ token: Joi.string().required() }); validateRequest(req, next, schema); }
 function resetPasswordSchema(req, res, next) { const schema = Joi.object({ token: Joi.string().required(), password: Joi.string().min(6).required(), confirmPassword: Joi.string().valid(Joi.ref('password')).required() }); validateRequest(req, next, schema); }
