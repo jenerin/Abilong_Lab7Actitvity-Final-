@@ -1,6 +1,4 @@
-<!-- Authenticated layout with sidebar -->
 <div class="dashboard-layout" *ngIf="account">
-  <!-- Sidebar -->
   <div class="sidebar">
     <div class="sidebar-header">
       <div class="sidebar-logo">A</div>
@@ -17,7 +15,7 @@
       <a routerLink="/profile" routerLinkActive="active" class="sidebar-link">
         <span class="sidebar-icon">👤</span> Profile
       </a>
-      <a *ngIf="account.role === Role.Admin" routerLink="/admin" routerLinkActive="active" class="sidebar-link">
+      <a *ngIf="account.role === 'Admin'" routerLink="/admin" routerLinkActive="active" class="sidebar-link">
         <span class="sidebar-icon">⚙️</span> Admin
       </a>
     </nav>
@@ -29,16 +27,14 @@
     </div>
   </div>
 
-  <!-- Main content -->
   <div class="dashboard-content">
-    <app-alert></app-alert>
+    <alert></alert>
     <router-outlet name="subnav"></router-outlet>
     <router-outlet></router-outlet>
   </div>
 </div>
 
-<!-- Unauthenticated layout (login/register pages) -->
 <div *ngIf="!account">
-  <app-alert></app-alert>
+  <alert></alert>
   <router-outlet></router-outlet>
 </div>
