@@ -37,7 +37,7 @@ export class ResetPasswordComponent implements OnInit {
             password: ['', [Validators.required, Validators.minLength(6)]],
             confirmPassword: ['', Validators.required],
         }, {
-           validator: mustMatch('password', 'confirmPassword') }
+            validator: mustMatch('password', 'confirmPassword')
         });
 
         const token = this.route.snapshot.queryParams['token'];
@@ -52,11 +52,11 @@ export class ResetPasswordComponent implements OnInit {
                 next: () => {
                     this.token = token;
                     this.tokenStatus = TokenStatus.Valid;
-                    this.cdr.detectChanges();
+                    this.cdr?.detectChanges();
                 },
                 error: () => {
                     this.tokenStatus = TokenStatus.Invalid;
-                    this.cdr.detectChanges();
+                    this.cdr?.detectChanges();
                 }
             });
     }
@@ -65,14 +65,14 @@ export class ResetPasswordComponent implements OnInit {
 
     onSubmit() {
         this.submitted = true;
-        this.cdr.detectChanges();
+        this.cdr?.detectChanges();
 
         this.alertService.clear();
 
         if (this.form.invalid) return;
 
         this.loading = true;
-        this.cdr.detectChanges();
+        this.cdr?.detectChanges();
 
         this.accountService.resetPassword(this.token!, this.f['password'].value, this.f['confirmPassword'].value)
             .pipe(first())
@@ -84,7 +84,7 @@ export class ResetPasswordComponent implements OnInit {
                 error: error => {
                     this.alertService.error(error);
                     this.loading = false;
-                    this.cdr.detectChanges();
+                    this.cdr?.detectChanges();
                 }
             });
     }
