@@ -5,67 +5,22 @@ const Account = require('./account.model');
 const RefreshToken = require('./refresh-token.model');
 const sendEmail = require('../helpers/send-email');
 
-// Set up associations
 Account.hasMany(RefreshToken, { foreignKey: 'accountId', as: 'refreshTokens' });
 RefreshToken.belongsTo(Account, { foreignKey: 'accountId' });
 
 async function register(params, origin) {
     const existing = await Account.findOne({ where: { email: params.email } });
     if (existing) throw new Error(`Email "${params.email}" is already registered`);
-
     const accountCount = await Account.count();
     const role = accountCount === 0 ? 'Admin' : 'User';
     const verificationToken = uuidv4();
-
     const account = await Account.create({
-        title: params.title,
-        firstName: params.firstName,
-        lastName: params.lastName,
-        email: params.email,
-        passwordHash: bcrypt.hashSync(params.password, 10),
-        acceptTerms: params.acceptTerms,
-        role,
-        verificationToken
+        title: params.title, firstName: params.firstName, lastName: params.lastName,
+        email: params.email, passwordHash: bcrypt.hashSync(params.password, 10),
+        acceptTerms: params.acceptTerms, role, verificationToken
     });
-
     await sendVerificationEmail(account, origin);
     return { message: 'Registration successful, please check your email for verification instructions' };
-}
-
-async function verifyEmail({ token }) {
-    const account = await Account.findOne({ where: { verificationToken: token } });
-    if (!account) throw new Error('Verification failed');
-    account.verified = new Date();
-    account.verificationToken = null;
-    await account.save();
-}
-
-async function authenticate({ email, password }, ipAddress) {
-    const account = await Account.findOne({ where: { email } });
-    if (!account || !bcrypt.compareSync(password, account.passwordHash)) throw new Error('Email or password is incorrect');
-    if (!account.verified) throw new Error('Please verify your email before logging in');
-    const jwtToken = generateJwtToken(account);
-    const refreshToken = await generateRefreshToken(account, ipAddress);
-    return { ...basicDetails(account), jwtToken, refreshToken: refreshToken.token };
-}
-
-async function refreshToken({ token, ipAddress }) {
-    const existingToken = await getRefreshToken(token);
-    const account = await Account.findByPk(existingToken.accountId);
-    const newRefreshToken = await generateRefreshToken(account, ipAddress);
-    existingToken.revoked = new Date();
-    existingToken.revokedByIp = ipAddress;
-    existingToken.replacedByToken = newRefreshToken.token;
-    await existingToken.save();
-    const jwtToken = generateJwtToken(account);
-    return { ...basicDetails(account), jwtToken, refreshToken: newRefreshToken.token };
-}
-
-async function revokeToken({ token, ipAddress }) {
-    const refreshToken = await getRefreshToken(token);
-    refreshToken.revoked = new Date();
-    refreshToken.revokedByIp = ipAddress;
-    await refreshToken.save();
 }
 
 async function forgotPassword({ email }, origin) {
@@ -78,96 +33,18 @@ async function forgotPassword({ email }, origin) {
     return { message: 'Please check your email for reset instructions' };
 }
 
-async function validateResetToken({ token }) {
-    const account = await Account.findOne({ where: { resetToken: token } });
-    if (!account || account.resetTokenExpires < new Date()) throw new Error('Invalid token');
-}
-
-async function resetPassword({ token, password }) {
-    const account = await Account.findOne({ where: { resetToken: token } });
-    if (!account || account.resetTokenExpires < new Date()) throw new Error('Invalid token');
-    account.passwordHash = bcrypt.hashSync(password, 10);
-    account.passwordReset = new Date();
-    account.resetToken = null;
-    account.resetTokenExpires = null;
-    await account.save();
-}
-
-async function getAll() {
-    const accounts = await Account.findAll();
-    return accounts.map(basicDetails);
-}
-
-async function getById(id) {
-    const account = await Account.findByPk(id);
-    if (!account) throw new Error('Account not found');
-    return basicDetails(account);
-}
-
-async function create(params) {
-    const existing = await Account.findOne({ where: { email: params.email } });
-    if (existing) throw new Error(`Email "${params.email}" is already registered`);
-    const account = await Account.create({
-        title: params.title, firstName: params.firstName, lastName: params.lastName,
-        email: params.email, passwordHash: bcrypt.hashSync(params.password, 10),
-        acceptTerms: params.acceptTerms, role: params.role || 'User', verified: new Date()
-    });
-    return basicDetails(account);
-}
-
-async function update(id, params) {
-    const account = await Account.findByPk(id);
-    if (!account) throw new Error('Account not found');
-    if (params.email && params.email !== account.email) {
-        const existing = await Account.findOne({ where: { email: params.email } });
-        if (existing) throw new Error(`Email "${params.email}" is already registered`);
-    }
-    if (params.password) {
-        params.passwordHash = bcrypt.hashSync(params.password, 10);
-        delete params.password;
-    }
-    Object.assign(account, params);
-    await account.save();
-    return basicDetails(account);
-}
-
-async function deleteAccount(id) {
-    const account = await Account.findByPk(id);
-    if (!account) throw new Error('Account not found');
-    await account.destroy();
-}
-
-function basicDetails(account) {
-    const { id, title, firstName, lastName, email, role, verified, created, updated } = account;
-    return { id, title, firstName, lastName, email, role, verified, created, updated };
-}
-
-function generateJwtToken(account) {
-    return jwt.sign({ id: account.id, role: account.role }, process.env.JWT_SECRET || 'default-secret-change-me', { expiresIn: process.env.JWT_ACCESS_EXPIRY || '15m' });
-}
-
-async function generateRefreshToken(account, ipAddress) {
-    return await RefreshToken.create({ accountId: account.id, token: uuidv4(), expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), createdByIp: ipAddress });
-}
-
-async function getRefreshToken(token) {
-    const refreshToken = await RefreshToken.findOne({ where: { token } });
-    if (!refreshToken || refreshToken.revoked || refreshToken.expires < new Date()) throw new Error('Invalid token');
-    return refreshToken;
-}
-
 async function sendVerificationEmail(account, origin) {
     let frontendBase = origin || process.env.FRONTEND_URL || 'https://abilong-lab7actitvity-final-frontend.onrender.com';
     frontendBase = frontendBase.replace(/\/$/, "");
     const verifyUrl = `${frontendBase}/account/verify-email?token=${account.verificationToken}`;
-    await sendEmail({ to: account.email, subject: 'Verify your email address', html: `<p>Please verify by clicking here: <a href="${verifyUrl}">${verifyUrl}</a></p>` });
+    await sendEmail({ to: account.email, subject: 'Verify your email', html: `<p><a href="${verifyUrl}">${verifyUrl}</a></p>` });
 }
 
 async function sendPasswordResetEmail(account, origin) {
     let frontendBase = origin || process.env.FRONTEND_URL || 'https://abilong-lab7actitvity-final-frontend.onrender.com';
     frontendBase = frontendBase.replace(/\/$/, "");
     const resetUrl = `${frontendBase}/account/reset-password?token=${account.resetToken}`;
-    await sendEmail({ to: account.email, subject: 'Reset your password', html: `<p>Reset here: <a href="${resetUrl}">${resetUrl}</a></p>` });
+    await sendEmail({ to: account.email, subject: 'Reset your password', html: `<p><a href="${resetUrl}">${resetUrl}</a></p>` });
 }
 
-module.exports = { register, verifyEmail, authenticate, refreshToken, revokeToken, forgotPassword, validateResetToken, resetPassword, getAll, getById, create, update, delete: deleteAccount, sendVerificationEmail, sendPasswordResetEmail };
+module.exports = { register, forgotPassword, sendVerificationEmail, sendPasswordResetEmail };
