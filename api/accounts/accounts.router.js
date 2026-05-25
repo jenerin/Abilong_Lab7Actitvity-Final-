@@ -21,6 +21,8 @@ router.delete('/:id', authorize('Admin'), _delete);
 
 module.exports = router;
 
+// --- Route Handlers ---
+
 function authenticate(req, res, next) {
     const ipAddress = req.ip;
     accountsService.authenticate(req.body, ipAddress)
@@ -29,11 +31,7 @@ function authenticate(req, res, next) {
 }
 
 function register(req, res, next) {
-    console.log('Incoming Request Origin:', req.get('origin'));
-    console.log('Request Body:', req.body);
-    
     const clientOrigin = req.get('Origin') || req.get('origin') || process.env.FRONTEND_URL || 'https://abilong-lab7actitvity-final-frontend.onrender.com';
-    
     accountsService.register(req.body, clientOrigin)
         .then(result => res.json(result))
         .catch(next);
@@ -103,10 +101,12 @@ function _delete(req, res, next) {
     accountsService.delete(req.params.id).then(() => res.json({ message: 'Account deleted successfully' })).catch(next);
 }
 
+// --- Schemas & Helpers ---
+
 function authenticateSchema(req, res, next) { const schema = Joi.object({ email: Joi.string().email().required(), password: Joi.string().required() }); validateRequest(req, next, schema); }
 function registerSchema(req, res, next) { const schema = Joi.object({ title: Joi.string().allow('', null), firstName: Joi.string().required(), lastName: Joi.string().required(), email: Joi.string().email().required(), password: Joi.string().min(6).required(), confirmPassword: Joi.string().valid(Joi.ref('password')).required(), acceptTerms: Joi.boolean().valid(true).required() }); validateRequest(req, next, schema); }
 function verifyEmailSchema(req, res, next) { const schema = Joi.object({ token: Joi.string().required() }); validateRequest(req, next, schema); }
-function forgotPasswordSchema(req, res, next) { const schema = Joi.object({ email: Joi.string().email().required() }); validateRequest(req, next, schema); }
+function forgotPasswordSchema(req, res, next) { const schema = Joi.object({ email: Joi.string().email().required() }); validateRequest(req, res, next, schema); }
 function validateResetTokenSchema(req, res, next) { const schema = Joi.object({ token: Joi.string().required() }); validateRequest(req, next, schema); }
 function resetPasswordSchema(req, res, next) { const schema = Joi.object({ token: Joi.string().required(), password: Joi.string().min(6).required(), confirmPassword: Joi.string().valid(Joi.ref('password')).required() }); validateRequest(req, next, schema); }
 function createSchema(req, res, next) { const schema = Joi.object({ title: Joi.string().allow('', null), firstName: Joi.string().required(), lastName: Joi.string().required(), email: Joi.string().email().required(), password: Joi.string().min(6).required(), confirmPassword: Joi.string().valid(Joi.ref('password')).required(), role: Joi.string().valid('Admin', 'User').required(), acceptTerms: Joi.boolean() }); validateRequest(req, next, schema); }
