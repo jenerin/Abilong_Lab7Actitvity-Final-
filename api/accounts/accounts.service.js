@@ -33,18 +33,52 @@ async function forgotPassword({ email }, origin) {
     return { message: 'Please check your email for reset instructions' };
 }
 
+async function verifyEmail({ token }) {
+    const account = await Account.findOne({ where: { verificationToken: token } });
+    if (!account) throw new Error('Verification failed');
+    account.verified = new Date();
+    account.verificationToken = null;
+    await account.save();
+}
+
+async function authenticate({ email, password }, ipAddress) {
+    const account = await Account.findOne({ where: { email } });
+    if (!account || !bcrypt.compareSync(password, account.passwordHash)) throw new Error('Email or password is incorrect');
+    if (!account.verified) throw new Error('Please verify your email before logging in');
+    const jwtToken = generateJwtToken(account);
+    const refreshToken = await generateRefreshToken(account, ipAddress);
+    return { ...basicDetails(account), jwtToken, refreshToken: refreshToken.token };
+}
+
+async function getAll() {
+    const accounts = await Account.findAll();
+    return accounts.map(basicDetails);
+}
+
+// Helper functions kept for full functionality
+function basicDetails(account) {
+    const { id, title, firstName, lastName, email, role, verified, created, updated } = account;
+    return { id, title, firstName, lastName, email, role, verified, created, updated };
+}
+
+function generateJwtToken(account) {
+    return jwt.sign({ id: account.id, role: account.role }, process.env.JWT_SECRET || 'default-secret-change-me', { expiresIn: '15m' });
+}
+
+async function generateRefreshToken(account, ipAddress) {
+    return await RefreshToken.create({ accountId: account.id, token: uuidv4(), expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), createdByIp: ipAddress });
+}
+
 async function sendVerificationEmail(account, origin) {
     let frontendBase = origin || process.env.FRONTEND_URL || 'https://abilong-lab7actitvity-final-frontend.onrender.com';
-    frontendBase = frontendBase.replace(/\/$/, "");
     const verifyUrl = `${frontendBase}/account/verify-email?token=${account.verificationToken}`;
     await sendEmail({ to: account.email, subject: 'Verify your email', html: `<p><a href="${verifyUrl}">${verifyUrl}</a></p>` });
 }
 
 async function sendPasswordResetEmail(account, origin) {
     let frontendBase = origin || process.env.FRONTEND_URL || 'https://abilong-lab7actitvity-final-frontend.onrender.com';
-    frontendBase = frontendBase.replace(/\/$/, "");
     const resetUrl = `${frontendBase}/account/reset-password?token=${account.resetToken}`;
-    await sendEmail({ to: account.email, subject: 'Reset your password', html: `<p><a href="${resetUrl}">${resetUrl}</a></p>` });
+    await sendEmail({ to: account.email, subject: 'Reset password', html: `<p><a href="${resetUrl}">${resetUrl}</a></p>` });
 }
 
-module.exports = { register, forgotPassword, sendVerificationEmail, sendPasswordResetEmail };
+module.exports = { register, forgotPassword, verifyEmail, authenticate, getAll, sendVerificationEmail, sendPasswordResetEmail };
