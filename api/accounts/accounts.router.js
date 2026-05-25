@@ -65,9 +65,7 @@ function authenticate(req, res, next) {
 }
 
 function register(req, res, next) {
-    // 🚀 FIXED: Dynamic fallback check to guarantee origin string presence on production hosting platforms
     const clientOrigin = req.get('Origin') || req.get('origin') || process.env.FRONTEND_URL || 'https://abilong-lab7actitvity-final-frontend.onrender.com';
-    
     accountsService.register(req.body, clientOrigin)
         .then(result => res.json(result))
         .catch(next);
@@ -199,6 +197,34 @@ function resetPasswordSchema(req, res, next) {
         token: Joi.string().required(),
         password: Joi.string().min(6).required(),
         confirmPassword: Joi.string().valid(Joi.ref('password')).required()
+    });
+    validateRequest(req, next, schema);
+}
+
+function createSchema(req, res, next) {
+    const schema = Joi.object({
+        title: Joi.string().allow('', null),
+        firstName: Joi.string().required(),
+        lastName: Joi.string().required(),
+        email: Joi.string().email().required(),
+        password: Joi.string().min(6).required(),
+        confirmPassword: Joi.string().valid(Joi.ref('password')).required(),
+        role: Joi.string().valid('Admin', 'User').required(),
+        acceptTerms: Joi.boolean()
+    });
+    validateRequest(req, next, schema);
+}
+
+// 🚀 FIXED: Fully implemented updateSchema function to clear the startup error crash
+function updateSchema(req, res, next) {
+    const schema = Joi.object({
+        title: Joi.string().allow('', null),
+        firstName: Joi.string().empty(''),
+        lastName: Joi.string().empty(''),
+        email: Joi.string().email().empty(''),
+        password: Joi.string().min(6).empty(''),
+        confirmPassword: Joi.string().valid(Joi.ref('password')).empty(''),
+        role: Joi.string().valid('Admin', 'User').empty('')
     });
     validateRequest(req, next, schema);
 }
