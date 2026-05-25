@@ -14,17 +14,21 @@ const db = require('./config/database');
 
 const app = express();
 
-// 🚀 FIXED CORS: Whitelisting your actual live FRONTEND URL
+// 🚀 FIXED CORS: Whitelisting production frontend domain and local server instances
 const allowedOrigins = [
     'http://localhost:4200',
-    'https://abilong-lab7actitvity-final-frontend.onrender.com' // 🧠 Changed to the frontend domain!
+    'https://abilong-lab7actitvity-final-frontend.onrender.com'
 ];
 
 app.use(cors({
     origin: function (origin, callback) {
-        // Allow requests with no origin (like mobile apps or curl)
+        // Allow requests with no origin (like mobile apps, postman, or health checks)
         if (!origin) return callback(null, true);
-        if (allowedOrigins.indexOf(origin) !== -1) {
+        
+        // Strip trailing slashes that browsers sometimes append automatically
+        const sanitizedOrigin = origin.replace(/\/$/, "");
+
+        if (allowedOrigins.includes(sanitizedOrigin) || allowedOrigins.includes(origin)) {
             callback(null, true);
         } else {
             callback(new Error('Not allowed by CORS'));
