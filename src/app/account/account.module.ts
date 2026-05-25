@@ -11,21 +11,18 @@ import { ForgotPasswordComponent } from './forgot-password.component';
 import { ResetPasswordComponent } from './reset-password.component';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    ReactiveFormsModule, // 👈 Fixes the 'formGroup' and 'ngClass' errors for LoginComponent
-    AccountRoutingModule,
-    
-    // ✅ ONLY keep actual Standalone components here:
-    RegisterComponent,
-    VerifyEmailComponent,
-    ForgotPasswordComponent,
-    ResetPasswordComponent
-  ],
-  declarations: [
-    // 🏛️ Classic components MUST be declared here:
-    LayoutComponent,
-    LoginComponent 
-  ]
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        AccountRoutingModule
+    ],
+    declarations: [
+        LayoutComponent,
+        LoginComponent,
+        RegisterComponent,
+        VerifyEmailComponent,
+        ForgotPasswordComponent,
+        ResetPasswordComponent
+    ]
 })
 export class AccountModule { }
