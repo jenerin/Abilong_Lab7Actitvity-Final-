@@ -51,12 +51,15 @@ export class RegisterComponent implements OnInit {
         this.submitting = true;
         this.cdr?.detectChanges();
 
+        // Capture the user email to construct our success message banner dynamically
+        const userEmail = this.f['email'].value;
+
         // FIXED: Added acceptTerms explicitly to fulfill backend requirement
         const registerPayload = {
             title: this.f['title'].value,
             firstName: this.f['firstName'].value,
             lastName: this.f['lastName'].value,
-            email: this.f['email'].value,
+            email: userEmail,
             password: this.f['password'].value,
             confirmPassword: this.f['confirmPassword'].value,
             acceptTerms: this.f['acceptTerms'].value // Sending the true/false value to the backend
@@ -66,8 +69,11 @@ export class RegisterComponent implements OnInit {
             .pipe(first())
             .subscribe({
                 next: () => {
-                    this.alertService.success('Registration successful, please check your email for verification instructions', { keepAfterRouteChange: true });
-                    this.router.navigate(['../login'], { relativeTo: this.route });
+                    // 🚀 FIXED: Dynamic success banner targeting the user's explicit email address
+                    this.alertService.success(`Verification link sent to ${userEmail}. Please check your inbox!`, { keepAfterRouteChange: true });
+                    
+                    // 🚀 FIXED: Absolute route navigation to instantly redirect the page view to login
+                    this.router.navigate(['/account/login']);
                 },
                 error: error => {
                     this.alertService.error(error);
