@@ -88,4 +88,4 @@ export class ResetPasswordComponent implements OnInit {
                 }
             });
     }
-}
+}s
