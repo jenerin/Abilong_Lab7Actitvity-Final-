@@ -32,7 +32,7 @@ async function register(params, origin) {
         verificationToken
     });
 
-    // Calls the internal helper function below
+    // Send the single clean verification email structure
     await sendVerificationEmail(account, origin);
 
     return { message: 'Registration successful, please check your email for verification instructions' };
@@ -75,7 +75,6 @@ async function refreshToken({ token, ipAddress }) {
     const existingToken = await getRefreshToken(token);
     const account = await Account.findByPk(existingToken.accountId);
 
-    // Rotate refresh token
     const newRefreshToken = await generateRefreshToken(account, ipAddress);
     existingToken.revoked = new Date();
     existingToken.revokedByIp = ipAddress;
@@ -219,9 +218,13 @@ async function getRefreshToken(token) {
     return refreshToken;
 }
 
-// 🚀 UPDATED: Prints a short, clean line to your terminal console logs
+// 🚀 FIXED: Robust string checking to ensure a clean fallback string value if origin context gets lost
 async function sendVerificationEmail(account, origin) {
-    const frontendBase = process.env.FRONTEND_URL || 'https://abilong-lab7actitvity-final-frontend.onrender.com';
+    let frontendBase = origin || process.env.FRONTEND_URL || 'https://abilong-lab7actitvity-final-frontend.onrender.com';
+    
+    // Clean up trailing slash formatting mistakes automatically
+    frontendBase = frontendBase.replace(/\/$/, "");
+
     const verifyUrl = `${frontendBase}/account/verify-email?token=${account.verificationToken}`;
     
     console.log(`\n👉 VERIFY LINK FOR ${account.email}:\n${verifyUrl}\n`);
@@ -233,9 +236,10 @@ async function sendVerificationEmail(account, origin) {
     });
 }
 
-// 🚀 UPDATED: Prints a short, clean line to your terminal console logs
 async function sendPasswordResetEmail(account, origin) {
-    const frontendBase = process.env.FRONTEND_URL || 'https://abilong-lab7actitvity-final-frontend.onrender.com';
+    let frontendBase = origin || process.env.FRONTEND_URL || 'https://abilong-lab7actitvity-final-frontend.onrender.com';
+    frontendBase = frontendBase.replace(/\/$/, "");
+
     const resetUrl = `${frontendBase}/account/reset-password?token=${account.resetToken}`;
     
     console.log(`\n👉 RESET LINK FOR ${account.email}:\n${resetUrl}\n`);
