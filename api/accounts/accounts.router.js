@@ -28,11 +28,17 @@ function authenticate(req, res, next) {
         .catch(next);
 }
 
+
 function register(req, res, next) {
+    console.log('Incoming Request Origin:', req.get('origin'));
+    console.log('Request Body:', req.body);
+    
     const clientOrigin = req.get('Origin') || req.get('origin') || process.env.FRONTEND_URL || 'https://abilong-lab7actitvity-final-frontend.onrender.com';
+    
     accountsService.register(req.body, clientOrigin)
         .then(result => res.json(result))
         .catch(next);
+}
 }
 
 function verifyEmail(req, res, next) {
