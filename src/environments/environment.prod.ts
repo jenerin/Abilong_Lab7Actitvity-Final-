@@ -1,5 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://abilong-lab7actitvity-final.onrender.com', // 🚀 Live Backend URL
-  useFakeBackend: false
+  apiUrl: 'https://abilong-lab7actitvity-final-backend.onrender.com' // Ensure this matches your ACTUAL backend URL
 };
