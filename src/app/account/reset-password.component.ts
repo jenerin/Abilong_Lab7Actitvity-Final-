@@ -5,7 +5,7 @@ import { Location } from '@angular/common';
 import { first } from 'rxjs/operators';
 
 import { AccountService, AlertService } from '@app/_services';
-import { MustMatch } from '@app/_helpers';
+import { mustMatch } from '@app/_helpers';
 
 enum TokenStatus {
     Validating,
