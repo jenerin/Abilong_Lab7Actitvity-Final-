@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { first } from 'rxjs/operators';
@@ -17,7 +17,8 @@ export class RegisterComponent implements OnInit {
         private route: ActivatedRoute,
         private router: Router,
         private accountService: AccountService,
-        private alertService: AlertService
+        private alertService: AlertService,
+        private cdr: ChangeDetectorRef
     ) { }
 
     ngOnInit() {
@@ -39,6 +40,7 @@ export class RegisterComponent implements OnInit {
 
     onSubmit() {
         this.submitted = true;
+        this.cdr?.detectChanges();
 
         // reset alerts on submit
         this.alertService.clear();
@@ -49,7 +51,20 @@ export class RegisterComponent implements OnInit {
         }
 
         this.submitting = true;
-        this.accountService.register(this.form.value)
+        this.cdr?.detectChanges();
+
+        // FIX: Construct a clean payload filtering out UI-only controls (like acceptTerms) 
+        // to prevent Node.js backend schema validation from returning a 400 Bad Request
+        const registerPayload = {
+            title: this.f['title'].value,
+            firstName: this.f['firstName'].value,
+            lastName: this.f['lastName'].value,
+            email: this.f['email'].value,
+            password: this.f['password'].value,
+            confirmPassword: this.f['confirmPassword'].value
+        };
+
+        this.accountService.register(registerPayload)
             .pipe(first())
             .subscribe({
                 next: () => {
@@ -59,6 +74,7 @@ export class RegisterComponent implements OnInit {
                 error: error => {
                     this.alertService.error(error);
                     this.submitting = false;
+                    this.cdr?.detectChanges();
                 }
             });
     }
