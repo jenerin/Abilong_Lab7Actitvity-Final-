@@ -43,6 +43,32 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+// 🛠️ FIX: Intercept messy HTML console logs and format them into clean clickable links
+const originalLog = console.log;
+console.log = function (...args) {
+    const logString = args.join(' ');
+    
+    // Check if the log looks like a raw HTML body preview containing a verification link
+    if (logString.includes('Body (HTML):') && logString.includes('href=')) {
+        try {
+            // Regex to extract only the plain web URL out of the href attribute
+            const urlMatch = logString.match(/href="([^"]*)"/);
+            if (urlMatch && urlMatch[1]) {
+                originalLog(`\n==================================================`);
+                originalLog(`🔗 NEW CLICKABLE VERIFICATION LINK GENERATED:`);
+                originalLog(`   ${urlMatch[1]}`);
+                originalLog(`==================================================\n`);
+                return;
+            }
+        } catch (err) {
+            // Fallback to original layout log if parsing fails
+        }
+    }
+    
+    // Otherwise, pass through normal server startup and tracking logs
+    originalLog.apply(console, args);
+};
+
 // Routes
 app.use('/accounts', accountsRouter);
 
