@@ -1,58 +1,65 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { first } from 'rxjs/operators';
+
 import { AccountService, AlertService } from '@app/_services';
-import { mustMatch } from '@app/_helpers';
+import { MustMatch } from '@app/_helpers';
 
-@Component({
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: 'register.component.html'
-})
+@Component({ templateUrl: 'register.component.html', standalone: false })
 export class RegisterComponent implements OnInit {
-  form!: FormGroup;
-  loading = false;
-  submitted = false;
+    form!: FormGroup;
+    submitting = false;
+    submitted = false;
 
-  constructor(
-    private formBuilder: FormBuilder,
-    private router: Router,
-    private accountService: AccountService,
-    private alertService: AlertService
-  ) { }
+    constructor(
+        private formBuilder: FormBuilder,
+        private route: ActivatedRoute,
+        private router: Router,
+        private accountService: AccountService,
+        private alertService: AlertService
+    ) { }
 
-  ngOnInit(): void {
-    this.form = this.formBuilder.group({
-        title: ['', Validators.required],
-        firstName: ['', Validators.required],
-        lastName: ['', Validators.required],
-        email: ['', [Validators.required, Validators.email]],
-        password: ['', [Validators.required, Validators.minLength(6)]],
-        confirmPassword: ['', Validators.required],
-        acceptTerms: [false, Validators.requiredTrue]
-    }, { validators: mustMatch('password', 'confirmPassword') });
-  }
+    ngOnInit() {
+        this.form = this.formBuilder.group({
+            title: ['', Validators.required],
+            firstName: ['', Validators.required],
+            lastName: ['', Validators.required],
+            email: ['', [Validators.required, Validators.email]],
+            password: ['', [Validators.required, Validators.minLength(6)]],
+            confirmPassword: ['', Validators.required],
+            acceptTerms: [false, Validators.requiredTrue]
+        }, {
+            validator: MustMatch('password', 'confirmPassword')
+        });
+    }
 
-  get f() { return this.form.controls; }
+    // convenience getter for easy access to form fields
+    get f() { return this.form.controls; }
 
-  onSubmit(): void {
-    this.submitted = true;
-    if (this.form.invalid) return;
+    onSubmit() {
+        this.submitted = true;
 
-    this.loading = true;
-    this.accountService.register(this.form.value)
-      .pipe(first())
-      .subscribe({
-        next: () => {
-          this.alertService.success('Registration successful!', { keepAfterRouteChange: true });
-          this.router.navigate(['/account/login']);
-        },
-        error: (error: any) => {
-          this.alertService.error(error);
-          this.loading = false;
+        // reset alerts on submit
+        this.alertService.clear();
+
+        // stop here if form is invalid
+        if (this.form.invalid) {
+            return;
         }
-      });
-  }
+
+        this.submitting = true;
+        this.accountService.register(this.form.value)
+            .pipe(first())
+            .subscribe({
+                next: () => {
+                    this.alertService.success('Registration successful, please check your email for verification instructions', { keepAfterRouteChange: true });
+                    this.router.navigate(['../login'], { relativeTo: this.route });
+                },
+                error: error => {
+                    this.alertService.error(error);
+                    this.submitting = false;
+                }
+            });
+    }
 }
