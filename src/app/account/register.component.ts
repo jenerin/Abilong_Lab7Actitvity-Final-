@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { first } from 'rxjs/operators';
 
 import { AccountService, AlertService } from '@app/_services';
-import { MustMatch } from '@app/_helpers';
+import { mustMatch } from '@app/_helpers';
 
 @Component({ templateUrl: 'register.component.html', standalone: false })
 export class RegisterComponent implements OnInit {
@@ -30,7 +30,7 @@ export class RegisterComponent implements OnInit {
             confirmPassword: ['', Validators.required],
             acceptTerms: [false, Validators.requiredTrue]
         }, {
-            validator: MustMatch('password', 'confirmPassword')
+            validator: mustMatch('password', 'confirmPassword')
         });
     }
 
