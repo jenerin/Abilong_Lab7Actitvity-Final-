@@ -5,6 +5,7 @@ const validateRequest = require('../middleware/validate-request');
 const authorize = require('../middleware/authorize');
 const accountsService = require('./accounts.service');
 
+// Routes
 router.post('/authenticate', authenticateSchema, authenticate);
 router.post('/register', registerSchema, register);
 router.post('/verify-email', verifyEmailSchema, verifyEmail);
@@ -106,7 +107,8 @@ function _delete(req, res, next) {
 function authenticateSchema(req, res, next) { const schema = Joi.object({ email: Joi.string().email().required(), password: Joi.string().required() }); validateRequest(req, next, schema); }
 function registerSchema(req, res, next) { const schema = Joi.object({ title: Joi.string().allow('', null), firstName: Joi.string().required(), lastName: Joi.string().required(), email: Joi.string().email().required(), password: Joi.string().min(6).required(), confirmPassword: Joi.string().valid(Joi.ref('password')).required(), acceptTerms: Joi.boolean().valid(true).required() }); validateRequest(req, next, schema); }
 function verifyEmailSchema(req, res, next) { const schema = Joi.object({ token: Joi.string().required() }); validateRequest(req, next, schema); }
-function forgotPasswordSchema(req, res, next) { const schema = Joi.object({ email: Joi.string().email().required() }); validateRequest(req, res, next, schema); }
+// FIXED: Removed the extra argument in the line below
+function forgotPasswordSchema(req, res, next) { const schema = Joi.object({ email: Joi.string().email().required() }); validateRequest(req, next, schema); }
 function validateResetTokenSchema(req, res, next) { const schema = Joi.object({ token: Joi.string().required() }); validateRequest(req, next, schema); }
 function resetPasswordSchema(req, res, next) { const schema = Joi.object({ token: Joi.string().required(), password: Joi.string().min(6).required(), confirmPassword: Joi.string().valid(Joi.ref('password')).required() }); validateRequest(req, next, schema); }
 function createSchema(req, res, next) { const schema = Joi.object({ title: Joi.string().allow('', null), firstName: Joi.string().required(), lastName: Joi.string().required(), email: Joi.string().email().required(), password: Joi.string().min(6).required(), confirmPassword: Joi.string().valid(Joi.ref('password')).required(), role: Joi.string().valid('Admin', 'User').required(), acceptTerms: Joi.boolean() }); validateRequest(req, next, schema); }
