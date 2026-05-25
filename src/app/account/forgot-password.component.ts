@@ -37,9 +37,13 @@ export class ForgotPasswordComponent implements OnInit {
         }
 
         this.loading = true;
-        this.accountService.forgotPassword(this.f.email.value)
-            .pipe(first())
-            .pipe(finalize(() => this.loading = false))
+        
+        // FIXED: Switched from dot notation to bracket notation for strict index compliance
+        this.accountService.forgotPassword(this.f['email'].value)
+            .pipe(
+                first(),
+                finalize(() => this.loading = false)
+            )
             .subscribe({
                 next: () => this.alertService.success('Please check your email for password reset instructions'),
                 error: error => this.alertService.error(error)
