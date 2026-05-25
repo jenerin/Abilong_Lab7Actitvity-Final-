@@ -28,7 +28,6 @@ function authenticate(req, res, next) {
         .catch(next);
 }
 
-
 function register(req, res, next) {
     console.log('Incoming Request Origin:', req.get('origin'));
     console.log('Request Body:', req.body);
@@ -38,7 +37,6 @@ function register(req, res, next) {
     accountsService.register(req.body, clientOrigin)
         .then(result => res.json(result))
         .catch(next);
-}
 }
 
 function verifyEmail(req, res, next) {
