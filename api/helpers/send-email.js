@@ -4,14 +4,13 @@ async function sendEmail({ to, subject, html }) {
 
     try {
 
-        // CREATE SMTP TRANSPORT
         const transporter = nodemailer.createTransport({
 
             host: process.env.SMTP_HOST,
 
             port: Number(process.env.SMTP_PORT),
 
-            secure: Number(process.env.SMTP_PORT) === 465,
+            secure: false,
 
             auth: {
                 user: process.env.SMTP_USER,
@@ -20,49 +19,43 @@ async function sendEmail({ to, subject, html }) {
 
             tls: {
                 rejectUnauthorized: false
-            }
+            },
+
+            connectionTimeout: 10000,
+            greetingTimeout: 10000,
+            socketTimeout: 10000
 
         });
 
-        // VERIFY SMTP CONNECTION
+        console.log('📧 Connecting to SMTP...');
+
         await transporter.verify();
 
-        console.log('✅ SMTP SERVER CONNECTED');
+        console.log('✅ SMTP Connected');
 
-        // EMAIL LOGS
-        console.log('\n==========================================');
-        console.log('📧 EMAIL DETAILS');
-        console.log('TO:', to);
-        console.log('SUBJECT:', subject);
-        console.log('==========================================\n');
-
-        // SEND EMAIL
         const info = await transporter.sendMail({
 
             from: process.env.EMAIL_FROM,
 
-            to: to,
+            to,
 
-            subject: subject,
+            subject,
 
-            html: html
+            html
 
         });
 
-        console.log('✅ EMAIL SENT SUCCESSFULLY');
-        console.log('MESSAGE ID:', info.messageId);
+        console.log('✅ EMAIL SENT');
+        console.log(info.messageId);
 
-        // VERY IMPORTANT
-        return {
-            success: true
-        };
+        return true;
 
     } catch (error) {
 
         console.error('❌ EMAIL ERROR');
         console.error(error);
 
-        throw new Error('Email could not be sent');
+        throw error;
     }
 }
 
