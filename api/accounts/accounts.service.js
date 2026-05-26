@@ -242,16 +242,19 @@ async function generateRefreshToken(account, ipAddress) {
     });
 }
 
-// SEND VERIFICATION EMAIL
 async function sendVerificationEmail(account, origin) {
 
     const frontendBase =
         origin ||
-        process.env.FRONTEND_URL ||
-        'https://abilong-lab7actitvity-final-frontend.onrender.com';
+        process.env.FRONTEND_URL;
 
     const verifyUrl =
         `${frontendBase}/account/verify-email?token=${account.verificationToken}`;
+
+    console.log('\n========================================');
+    console.log('🔗 VERIFY EMAIL LINK');
+    console.log(verifyUrl);
+    console.log('========================================\n');
 
     await sendEmail({
         to: account.email,
